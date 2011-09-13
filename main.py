@@ -1,15 +1,46 @@
 from uuid import uuid4
 from boto.s3.connection import S3Connection
 from boto.s3.key import Key
-
-AWS_KEY = ''
-AWS_SECRET = ''
+from awscompat import collector
 
 
-class TestS3Bucket(object):
+class TestMcl(type):
+
+    def __new__(cls, name, bases, attrs):
+        from pprint import pprint
+        pprint(locals())
+        return type.__new__(cls, name, bases, attrs)
+
+
+class TestNode(object):
+
+    depends = None
+    #__metaclass__ = TestMcl
+
+    def __init__(self, parent_obj=None):
+        self.parent = parent_obj
 
     def setUp(self):
-        self.conn = S3Connection(AWS_KEY, AWS_SECRET)
+        raise NotImplementedError
+
+    def pre(self):
+        raise NotImplementedError
+
+    def pre_condition(self):
+        raise NotImplementedError
+
+    def post(self):
+        raise NotImplementedError
+
+    def post_condition(self):
+        raise NotImplementedError
+
+
+
+class TestS3Bucket(TestNode):
+
+    def setUp(self):
+        self.conn = S3Connection()
         self.bucket_name = 'test_aws_conformance_' + uuid4().hex
 
     def pre(self):
@@ -28,10 +59,9 @@ class TestS3Bucket(object):
         all_buckets = self.conn.get_all_buckets()
         assert self.bucket_name not in [bucket.name for bucket in all_buckets]
 
-class TestS3Object(object):
+class TestS3Object(TestNode):
 
-    def __init__(self, parent):
-        self.parent = parent
+    depends = TestS3Bucket
 
     def setUp(self):
         self.key = 'test_aws_conformance_' + uuid4().hex
@@ -51,9 +81,15 @@ class TestS3Object(object):
     def post_condition(self):
         assert not self.k.get_contents_as_string()
 
+
+"""
+tree = collector.Runner([TestS3Bucket, TestS3Object])
+tree.run()
+"""
+
+
 a = TestS3Bucket()
 b = TestS3Object(a)
-
 a.setUp()
 a.pre()
 a.pre_condition()
@@ -64,7 +100,6 @@ b.pre()
 b.pre_condition()
 b.post()
 b.post_condition
-
 
 a.post()
 a.post_condition()
