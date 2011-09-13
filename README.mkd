@@ -1,0 +1,13 @@
+## Goal
+
+Automated test to compare API compatibility between a given build of OpenStack and a reference of   AWS
+
+## Non-goals
+
+Do not be a general framework for launching Openstack builds for testing
+
+## Proposed Implementation Summary
+
+A test runner which executes a test strategy against a live openstack install and summarizes which  strategies passed and which failed.
+The "test strategy" will be derived from a configuration file in order to easily adapt to changes in the    AWS API.
+The test runner will mutate the target system's state.
