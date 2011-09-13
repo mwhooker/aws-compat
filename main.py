@@ -1,21 +1,12 @@
 from uuid import uuid4
 from boto.s3.connection import S3Connection
 from boto.s3.key import Key
-from awscompat import collector
-
-
-class TestMcl(type):
-
-    def __new__(cls, name, bases, attrs):
-        from pprint import pprint
-        pprint(locals())
-        return type.__new__(cls, name, bases, attrs)
+from awscompat import runner
 
 
 class TestNode(object):
 
     depends = None
-    #__metaclass__ = TestMcl
 
     def __init__(self, parent_obj=None):
         self.parent = parent_obj
@@ -82,8 +73,7 @@ class TestS3Object(TestNode):
         assert not self.k.get_contents_as_string()
 
 
-"""
-tree = collector.Runner([TestS3Bucket, TestS3Object])
+tree = runner.Runner([TestS3Bucket, TestS3Object])
 tree.run()
 """
 
@@ -103,3 +93,4 @@ b.post_condition
 
 a.post()
 a.post_condition()
+"""
