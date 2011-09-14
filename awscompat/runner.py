@@ -15,13 +15,20 @@ class Runner(object):
             return
 
         for klass in self.branches[parent_klass]:
-            print "running ", klass
             obj = klass(parent_obj)
             obj.setUp()
-            obj.pre()
-            obj.pre_condition()
+            try:
+                obj.pre()
+                obj.pre_condition()
+            except Exception:
+                print "pre exception: %s" % e
+                continue
+
 
             self.run(klass, obj)
 
-            obj.post()
-            obj.post_condition()
+            try:
+                obj.post()
+                obj.post_condition()
+            except Exception, e:
+                print "post exception: %s" % e
