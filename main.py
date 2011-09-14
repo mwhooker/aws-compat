@@ -50,6 +50,7 @@ class TestS3Bucket(TestNode):
         all_buckets = self.conn.get_all_buckets()
         assert self.bucket_name not in [bucket.name for bucket in all_buckets]
 
+
 class TestS3Object(TestNode):
 
     depends = TestS3Bucket
@@ -70,27 +71,8 @@ class TestS3Object(TestNode):
         self.k.delete()
 
     def post_condition(self):
-        assert not self.k.get_contents_as_string()
+        assert not self.k.exists()
 
 
 tree = runner.Runner([TestS3Bucket, TestS3Object])
 tree.run()
-"""
-
-
-a = TestS3Bucket()
-b = TestS3Object(a)
-a.setUp()
-a.pre()
-a.pre_condition()
-
-
-b.setUp()
-b.pre()
-b.pre_condition()
-b.post()
-b.post_condition
-
-a.post()
-a.post_condition()
-"""

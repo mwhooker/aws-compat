@@ -24,7 +24,6 @@ class Runner(object):
                 print "pre exception: %s" % e
                 continue
 
-
             self.run(klass, obj)
 
             try:
