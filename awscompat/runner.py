@@ -20,7 +20,7 @@ class Runner(object):
             try:
                 obj.pre()
                 obj.pre_condition()
-            except Exception:
+            except Exception, e:
                 print "pre exception: %s" % e
                 continue
 

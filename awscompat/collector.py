@@ -1,7 +1,6 @@
 import imp
 import glob
 import os.path
-import os
 import inspect
 import awscompat.tests.base as base
 
@@ -18,4 +17,5 @@ def collect(dir):
                and v is not base.TestNode:
                 classes.add(v)
 
+    assert len(classes)
     return classes
