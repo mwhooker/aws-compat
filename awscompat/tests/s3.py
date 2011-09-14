@@ -1,0 +1,52 @@
+from uuid import uuid4
+from boto.s3.connection import S3Connection
+from boto.s3.key import Key
+from base import TestNode
+
+
+class TestS3Bucket(TestNode):
+
+    def setUp(self):
+        self.conn = S3Connection()
+        self.bucket_name = 'test_aws_conformance_' + uuid4().hex
+
+    def pre(self):
+        self.bucket = self.conn.create_bucket(self.bucket_name)
+
+    def pre_condition(self):
+
+        all_buckets = self.conn.get_all_buckets()
+        assert self.bucket_name in [bucket.name for bucket in all_buckets]
+
+    def post(self):
+        self.conn.delete_bucket(self.bucket_name)
+
+    def post_condition(self):
+
+        all_buckets = self.conn.get_all_buckets()
+        assert self.bucket_name not in [bucket.name for bucket in all_buckets]
+
+
+class TestS3Object(TestNode):
+
+    depends = TestS3Bucket
+
+    def setUp(self):
+        self.key = 'test_aws_conformance_' + uuid4().hex
+        self.value = uuid4().hex
+        self.k = Key(self.parent.bucket)
+        self.k.key = self.key
+
+    def pre(self):
+        self.k.set_contents_from_string(self.value)
+
+    def pre_condition(self):
+        assert self.k.get_contents_as_string() == self.value
+
+    def post(self):
+        self.k.delete()
+
+    def post_condition(self):
+        assert not self.k.exists()
+
+
