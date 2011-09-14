@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import os.path
 
 from awscompat.tests.s3 import TestS3Bucket, TestS3Object
