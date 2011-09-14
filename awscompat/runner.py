@@ -1,6 +1,21 @@
 from collections import defaultdict
 
 
+"""
+TODO:
+    if two nodes depend on the same parent,
+    setup/tear down for each branch to provide a 
+    clean slate for the children.
+    OR
+    start from the root for each path
+        Z
+        |
+        A
+       / \
+      B   C
+    Z -> A -> B
+    Z -> A -> C
+"""
 class Runner(object):
 
     def __init__(self, classes):

@@ -6,7 +6,7 @@ class TestNode(object):
         self.parent = parent_obj
 
     def setUp(self):
-        raise NotImplementedError
+        pass
 
     def pre(self):
         raise NotImplementedError
@@ -19,4 +19,3 @@ class TestNode(object):
 
     def post_condition(self):
         raise NotImplementedError
-
