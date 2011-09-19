@@ -47,6 +47,25 @@ class TestObject(TestNode):
         assert not self._getKey().exists()
 
 
+class TestVersioning(TestNode):
+
+    depends = TestBucket
+
+    def setUp(self):
+        self.parent.bucket.configure_versioning(True)
+
+    def pre(self):
+        print self.parent.bucket.get_versioning_status()
+
+    def pre_condition(self):
+        pass
+
+    def post(self):
+        pass
+
+    def post_condition(self):
+        pass
+
 class TestAcl(TestNode):
 
     depends = {'object': TestObject}
