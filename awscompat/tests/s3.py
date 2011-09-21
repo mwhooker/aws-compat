@@ -1,5 +1,4 @@
 import httplib2
-from uuid import uuid4
 from boto.s3.connection import S3Connection
 from boto.s3.key import Key
 from base import TestNode
@@ -9,7 +8,7 @@ class TestBucket(TestNode):
 
     def setUp(self):
         self.conn = S3Connection()
-        self.bucket_name = 'test_aws_conformance_' + uuid4().hex
+        self.bucket_name = self.make_key('test_aws_conformance')
 
     def pre(self):
         self.bucket = self.conn.create_bucket(self.bucket_name)
@@ -33,8 +32,8 @@ class TestObject(TestNode):
     depends = TestBucket
 
     def setUp(self):
-        self.key = 'test_aws_conformance_' + uuid4().hex
-        self.value = uuid4().hex
+        self.key = self.make_key('test_aws_conformance')
+        self.value = self.make_key()
 
     def _getKey(self):
         k = Key(self.parent.bucket)
