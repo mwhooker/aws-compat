@@ -75,9 +75,11 @@ class Runner(object):
     def print_messages(self):
         if len(self.errors):
             print "errors: ", len(self.errors)
+            print self.errors
 
         if len(self.failures):
             print "failures: ", len(self.failures)
+            print self.failures
 
         if not len(self.failures) and not len(self.errors):
             print "OK"

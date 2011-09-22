@@ -1,5 +1,5 @@
 {
     "ec2": {
-        "test_image": ""
+        "test_image_id": ""
     }
 }

@@ -1,5 +1,5 @@
 from base import TestNode
-from awscompat import s3_conn, ec2_conn, config
+from awscompat import s3_conn, ec2_conn, config, util
 
 
 class TestSecurityGroups(TestNode):
@@ -15,37 +15,69 @@ class TestSecurityGroups(TestNode):
         )
 
     def pre_condition(self):
-        assert repr(self.group) in [repr(g) for g in
-                                    ec2_conn.get_all_security_groups()]
+        assert len(ec2_conn.get_all_security_groups(
+            groupnames=[self.group_name]))
 
     def post(self):
         self.group.delete()
 
     def post_condition(self):
-        assert repr(self.group) not in [repr(g) for g in
-                                        ec2_conn.get_all_security_groups()]
+        assert not len(ec2_conn.get_all_security_groups(
+            groupnames=[self.group_name]))
+
+class TestKeyPairs(TestNode):
+
+    depends = TestSecurityGroups
+
+    def setUp(self):
+        self.key_name = self.make_key('key_name')
+
+    def pre(self):
+        self.keypair = ec2_conn.create_key_pair(self.key_name)
+
+    def pre_condition(self):
+        assert len(ec2_conn.get_all_key_pairs(keynames=[self.key_name]))
+
+    def post(self):
+        ec2_conn.delete_key_pair(self.key_name)
+
+    def post_condition(self):
+        assert not len(ec2_conn.get_all_key_pairs(keynames=[self.key_name]))
 
 class TestInstance(TestNode):
 
+    depends = TestKeyPairs
+
     def setUp(self):
-        print ec2_conn.get_all_images()
+        image_id = config['ec2']['test_image_id']
+        self.image = ec2_conn.get_all_images(image_ids=[image_id])[0]
+        # hoist down grandparent. see TODO for fix.
+        self.security_group = self.parent.parent
 
     def pre(self):
-        pass
+        self.security_group.group.authorize('tcp', 22, 22, '0.0.0.0/0')
+        self.reservation = self.image.run(
+            instance_type='t1.micro',
+            security_groups=[self.security_group.group_name],
+            key_name=self.parent.key_name
+        )
+
+        util.wait(lambda : self.reservation.instances[0].state == 'running')
 
     def pre_condition(self):
-        pass
+        print self.reservation
 
     def post(self):
-        pass
+        self.reservation.stop_all()
+        util.wait(lambda : self.reservation.instances[0].state == 'terminated',
+                  timeout=120)
 
     def post_condition(self):
-        pass
 
 
 
 """
-class TestImageCration(TestNode):
+class TestImageCreation(TestNode):
 
     depends = TestSecurityGroups
 

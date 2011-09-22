@@ -1,6 +1,7 @@
 ## Goals
 
 Automated test to compare API compatibility between a given build of OpenStack and AWS
+Assuming the test will be run against AWS, try to stay in the free tier as much as possible.
 
 ## Non-goals
 
