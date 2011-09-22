@@ -34,10 +34,12 @@ def run(tests, val=None):
         return
 
     f = tests.pop(0)
-    if not val:
-        test_gen = f()
-    else:
+    try:
         test_gen = f(val)
+    except Exception, e:
+        # let parents do cleanup
+        return
+
     threw = False
 
     run(tests, test_gen.next())
@@ -47,6 +49,9 @@ def run(tests, val=None):
     except StopIteration:
         threw = True
         pass
+    except Exception, e:
+        return
+
     assert threw
 
 run([test_bucket, test_object, test_acl])

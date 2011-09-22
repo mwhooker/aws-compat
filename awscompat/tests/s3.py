@@ -6,7 +6,7 @@ from awscompat import util
 
 S3_CONN = S3Connection()
 
-def test_bucket():
+def test_bucket(root):
     bucket_name = util.make_key('test_bucket')
 
     bucket = S3_CONN.create_bucket(bucket_name)
