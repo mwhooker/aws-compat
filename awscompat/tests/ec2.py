@@ -1,3 +1,6 @@
+import base64
+import paramiko
+import boto.exception
 from base import TestNode
 from awscompat import s3_conn, ec2_conn, config, util
 
@@ -42,15 +45,23 @@ class TestKeyPairs(TestNode):
         ec2_conn.delete_key_pair(self.key_name)
 
     def post_condition(self):
-        assert not len(ec2_conn.get_all_key_pairs(keynames=[self.key_name]))
+        threw = False
+        try:
+            ec2_conn.get_all_key_pairs(keynames=[self.key_name])
+        except boto.exception.EC2ResponseError:
+            # this should be a 400
+            threw = True
+        assert threw
 
 class TestInstance(TestNode):
 
     depends = TestKeyPairs
 
     def _instance_state(self, expected):
-        self.reservation.instances[0].update()
-        return lambda: self.reservation.instances[0].state == expected
+        def do():
+            self.reservation.instances[0].update()
+            return self.reservation.instances[0].state == expected
+        return do
 
     def setUp(self):
         image_id = config['ec2']['test_image_id']
@@ -66,10 +77,20 @@ class TestInstance(TestNode):
             key_name=self.parent.key_name
         )
 
-        util.wait(self._instance_state('running'))
+        util.wait(self._instance_state('running'), timeout=120)
 
     def pre_condition(self):
-        print self.reservation
+        material = ''.join(self.parent.keypair.material.split('\n')[1:-1])
+        key = paramiko.RSAKey(
+            data=base64.decodestring(material))
+        host = self.reservation.instances[0].public_dns_name
+        client = paramiko.SSHClient()
+        client.get_host_keys().add(host, 'ssh-rsa', key)
+        client.connect(host, username='ec2-user')
+        stdin, stdout, stderr = client.exec_command('uname')
+        for line in stdout:
+            print '... ' + line.strip('\n')
+        client.close()
 
     def post(self):
         self.reservation.stop_all()
