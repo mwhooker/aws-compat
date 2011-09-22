@@ -47,8 +47,12 @@ class Runner(object):
 
             try:
                 obj.pre_condition()
-            except AssertionError, e:
+            except (Exception, AssertionError) as e:
                 self.pre_failure(obj, e)
+                try:
+                    obj.post()
+                except Exception:
+                    pass
                 continue
 
             self.run(klass, obj)
