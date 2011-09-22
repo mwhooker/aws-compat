@@ -48,6 +48,10 @@ class TestInstance(TestNode):
 
     depends = TestKeyPairs
 
+    def _instance_state(self, expected):
+        self.reservation.instances[0].update()
+        return lambda: self.reservation.instances[0].state == expected
+
     def setUp(self):
         image_id = config['ec2']['test_image_id']
         self.image = ec2_conn.get_all_images(image_ids=[image_id])[0]
@@ -62,17 +66,17 @@ class TestInstance(TestNode):
             key_name=self.parent.key_name
         )
 
-        util.wait(lambda : self.reservation.instances[0].state == 'running')
+        util.wait(self._instance_state('running'))
 
     def pre_condition(self):
         print self.reservation
 
     def post(self):
         self.reservation.stop_all()
-        util.wait(lambda : self.reservation.instances[0].state == 'terminated',
-                  timeout=120)
+        util.wait(self._instance_state('terminated'), timeout=120)
 
     def post_condition(self):
+        pass
 
 
 
