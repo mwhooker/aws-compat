@@ -1,4 +1,6 @@
 run each path through test graph asynchronously
+
+
 convenience method for accessing parent attributes
     search towards root for attribute
     self.parent('key')
@@ -9,4 +11,9 @@ allow multiple dependencies
            \             /
             TestInstance
     TestInstance.key_pairs.key_pair
+    (or TestInstance.parents[TestKeyPairs].key_pair)
     TestInstance.security_groups.group
+
+
+Add Assert methods to base test a la TestCase
+Improve logging
