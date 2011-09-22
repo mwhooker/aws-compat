@@ -1,29 +1,28 @@
 import httplib2
-from boto.s3.connection import S3Connection
 from boto.s3.key import Key
 from base import TestNode
+from awscompat.connections import S3_CONN
 
 
 class TestBucket(TestNode):
 
     def setUp(self):
-        self.conn = S3Connection()
         self.bucket_name = self.make_key('bucket')
 
     def pre(self):
-        self.bucket = self.conn.create_bucket(self.bucket_name)
+        self.bucket = S3_CONN.create_bucket(self.bucket_name)
 
     def pre_condition(self):
 
-        all_buckets = self.conn.get_all_buckets()
+        all_buckets = S3_CONN.get_all_buckets()
         assert self.bucket_name in [bucket.name for bucket in all_buckets]
 
     def post(self):
-        self.conn.delete_bucket(self.bucket_name)
+        S3_CONN.delete_bucket(self.bucket_name)
 
     def post_condition(self):
 
-        all_buckets = self.conn.get_all_buckets()
+        all_buckets = S3_CONN.get_all_buckets()
         assert self.bucket_name not in [bucket.name for bucket in all_buckets]
 
 
