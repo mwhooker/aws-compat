@@ -7,7 +7,7 @@ from awscompat import s3_conn, config
 class TestBucket(TestNode):
 
     def setUp(self):
-        self.bucket_name = self.make_key('bucket')
+        self.bucket_name = self.make_uuid('bucket')
 
     def pre(self):
         self.bucket = s3_conn.create_bucket(self.bucket_name)
@@ -31,8 +31,8 @@ class TestObject(TestNode):
     depends = TestBucket
 
     def setUp(self):
-        self.key = self.make_key('object')
-        self.value = self.make_key()
+        self.key = self.make_uuid('object')
+        self.value = self.make_uuid()
 
     def _getKey(self):
         k = Key(self.parent.bucket)

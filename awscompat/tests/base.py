@@ -7,7 +7,7 @@ class TestNode(object):
     def __init__(self, parent_obj=None):
         self.parent = parent_obj
 
-    def make_key(self, prefix=None):
+    def make_uuid(self, prefix=None):
         return "awscompat_%s%s" % (
             "%s_" % prefix if prefix else '',
             uuid4().hex

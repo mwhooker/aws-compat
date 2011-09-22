@@ -5,8 +5,8 @@ from awscompat import s3_conn, ec2_conn, config, util
 class TestSecurityGroups(TestNode):
 
     def setUp(self):
-        self.group_name = self.make_key('group_name')
-        self.group_desc = self.make_key('group_desc')
+        self.group_name = self.make_uuid('group_name')
+        self.group_desc = self.make_uuid('group_desc')
 
     def pre(self):
         self.group = ec2_conn.create_security_group(
@@ -30,7 +30,7 @@ class TestKeyPairs(TestNode):
     depends = TestSecurityGroups
 
     def setUp(self):
-        self.key_name = self.make_key('key_name')
+        self.key_name = self.make_uuid('key_name')
 
     def pre(self):
         self.keypair = ec2_conn.create_key_pair(self.key_name)
@@ -82,8 +82,8 @@ class TestImageCreation(TestNode):
     depends = TestSecurityGroups
 
     def setUp(self):
-        self.image_path = self.make_key('image_path')
-        self.image_bucket = self.make_key('image_bucket')
+        self.image_path = self.make_uuid('image_path')
+        self.image_bucket = self.make_uuid('image_bucket')
 
     def pre(self):
         bucket = s3_conn.get_bucket(self.image_buckewt)
