@@ -1,6 +1,7 @@
 import base64
 import paramiko
 import boto.exception
+from cStringIO import StringIO
 from base import TestNode
 from awscompat import s3_conn, ec2_conn, config, util
 
@@ -57,11 +58,6 @@ class TestInstance(TestNode):
 
     depends = TestKeyPairs
 
-    def _instance_state(self, expected):
-        def do():
-            self.reservation.instances[0].update()
-            return self.reservation.instances[0].state == expected
-        return do
 
     def setUp(self):
         image_id = config['ec2']['test_image_id']
@@ -77,13 +73,24 @@ class TestInstance(TestNode):
             key_name=self.parent.key_name
         )
 
-        util.wait(self._instance_state('running'), timeout=120)
+        util.wait(
+            lambda: self.reservation.instances[0].update() == 'running',
+            timeout=70
+        )
 
     def pre_condition(self):
-        material = ''.join(self.parent.keypair.material.split('\n')[1:-1])
-        key = paramiko.RSAKey(
-            data=base64.decodestring(material))
+        key_file = StringIO(self.parent.keypair.material.encode('ascii'))
+        rsa_key = paramiko.RSAKey(file_obj=key_file)
         host = self.reservation.instances[0].public_dns_name
+
+        transport = paramiko.Transport((host, 22))
+        transport.connect(username='ec2-user', pkey=rsa_key)
+        channel = transport.open_session()
+        channel.exec_command('uname')
+        output = channel.makefile('rb', -1).readlines()
+        print "output: ", output
+
+        """
         client = paramiko.SSHClient()
         client.get_host_keys().add(host, 'ssh-rsa', key)
         client.connect(host, username='ec2-user')
@@ -91,10 +98,14 @@ class TestInstance(TestNode):
         for line in stdout:
             print '... ' + line.strip('\n')
         client.close()
+        """
 
     def post(self):
-        self.reservation.stop_all()
-        util.wait(self._instance_state('terminated'), timeout=120)
+        self.reservation.instances[0].terminate()
+        util.wait(
+            lambda: self.reservation.instances[0].update() == 'terminated',
+            timeout=120
+        )
 
     def post_condition(self):
         pass

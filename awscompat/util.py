@@ -11,7 +11,7 @@ def make_uuid(prefix=None):
 
 class TimeoutException(Exception): pass
 
-def wait(condition=cmp, wait=0.1, timeout=30):
+def wait(condition, wait=0.1, timeout=30):
     """
     Loop until condition() is True or timeout.
 
@@ -21,7 +21,7 @@ def wait(condition=cmp, wait=0.1, timeout=30):
         timout: if set, how long to wait, in seconds, before aborting.
     """
 
-    assert callable(cmp)
+    assert callable(condition)
     start = time.time()
     while not condition():
         time.sleep(0.1)
