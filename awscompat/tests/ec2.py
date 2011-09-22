@@ -1,29 +1,24 @@
 from boto.ec2.connection import EC2Connection
-
-from base import TestNode
+from awscompat import util
 
 
 EC2_CONN = EC2Connection()
 
-class TestSecurityGroups(TestNode):
+def security_groups():
 
-    def setUp(self):
-        self.group_name = self.make_key('group_name')
-        self.group_desc = self.make_key('group_desc')
+    group_name = util.make_key('group_name')
+    group_desc = util.make_key('group_desc')
 
-    def pre(self):
-        self.group = EC2_CONN.create_security_group(
-            self.group_name,
-            self.group_desc
-        )
+    group = EC2_CONN.create_security_group(
+        group_name,
+        group_desc
+    )
 
-    def pre_condition(self):
-        assert repr(self.group) in [repr(g) for g in
-                                    EC2_CONN.get_all_security_groups()]
+    assert repr(group) in [repr(g) for g in
+                           EC2_CONN.get_all_security_groups()]
 
-    def post(self):
-        self.group.delete()
+    yield group
 
-    def post_condition(self):
-        assert repr(self.group) not in [repr(g) for g in
-                                        EC2_CONN.get_all_security_groups()]
+    group.delete()
+    assert repr(group) not in [repr(g) for g in
+                               EC2_CONN.get_all_security_groups()]
