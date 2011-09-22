@@ -25,6 +25,26 @@ class TestSecurityGroups(TestNode):
         assert repr(self.group) not in [repr(g) for g in
                                         ec2_conn.get_all_security_groups()]
 
+
+def TestInstance(TestNode):
+
+    def setUp(self):
+        print ec2_conn.get_all_images()
+
+    def pre(self):
+        pass
+
+    def pre_condition(self):
+        pass
+
+    def post(self):
+        pass
+
+    def post_condition(self):
+        pass
+
+
+
 """
 class TestImageCration(TestNode):
 
