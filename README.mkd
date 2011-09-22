@@ -1,6 +1,6 @@
-## Goal
+## Goals
 
-Automated test to compare API compatibility between a given build of OpenStack and a reference of   AWS
+Automated test to compare API compatibility between a given build of OpenStack and AWS
 
 ## Non-goals
 
