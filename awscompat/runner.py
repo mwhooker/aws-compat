@@ -32,6 +32,7 @@ class Runner(object):
             return
 
         for klass in self.branches[parent_klass]:
+            print klass
             obj = klass(parent_obj)
             obj.setUp()
             try:

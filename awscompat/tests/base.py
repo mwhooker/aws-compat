@@ -11,6 +11,7 @@ class TestNode(object):
         return "awscompat_%s%s" % (
             "%s_" % prefix if prefix else '',
             uuid4().hex
+        )
 
     def setUp(self):
         pass

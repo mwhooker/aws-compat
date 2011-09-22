@@ -5,11 +5,14 @@ import inspect
 import awscompat.tests.base as base
 
 
-def collect(dir):
+def collect(dir, include_modules=[]):
     classes = set([])
 
     for path in glob.glob(os.path.join(dir, '*.py')):
-        module_name = 'awscompat.tests.' + inspect.getmodulename(path)
+        module_name = inspect.getmodulename(path)
+        if module_name not in include_modules:
+            continue
+        module_name = 'awscompat.tests.' + module_name
         module = imp.load_source(module_name, path)
         for k, v in inspect.getmembers(module):
             if inspect.isclass(v) \
