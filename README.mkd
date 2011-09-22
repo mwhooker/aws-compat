@@ -1,16 +1,16 @@
 ## Goals
 
-Automated test to compare API compatibility between a given build of OpenStack and AWS
-Assuming the test will be run against AWS, try to stay in the free tier as much as possible.
-Cover the main use cases for the AWS api.
+   * Automated test to compare API compatibility between a given build of OpenStack and AWS
+   * Assuming the test will be run against AWS, try to stay in the free tier as much as possible.
+   * Cover the main use cases for the AWS api.
 
 ## Non-goals
 
-Do not be a general framework for launching Openstack builds for testing
-Do not attempt full coverage of the AWS API.
+   * Do not be a general framework for launching Openstack builds for testing
+   * Do not attempt full coverage of the AWS API.
 
 ## Proposed Implementation Summary
 
-A test runner which executes a test strategy against a live openstack install and summarizes which  strategies passed and which failed.
-The "test strategy" will be derived from a configuration file in order to easily adapt to changes in the AWS API.
-The test runner will mutate the target system's state while running, but will do it's best to leave system in its original state.
+   * A test runner which executes a test strategy against a live openstack install and summarizes which  strategies passed and which failed.
+   * The "test strategy" will be derived from a configuration file in order to easily adapt to changes in the AWS API.
+   * The test runner will mutate the target system's state while running, but will do it's best to leave system in its original state.
