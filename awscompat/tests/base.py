@@ -8,10 +8,9 @@ class TestNode(object):
         self.parent = parent_obj
 
     def make_key(self, prefix=None):
-        return "%s%s" % (
+        return "awscompat_%s%s" % (
             "%s_" % prefix if prefix else '',
             uuid4().hex
-        )
 
     def setUp(self):
         pass

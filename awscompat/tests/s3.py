@@ -8,7 +8,7 @@ class TestBucket(TestNode):
 
     def setUp(self):
         self.conn = S3Connection()
-        self.bucket_name = self.make_key('test_aws_conformance')
+        self.bucket_name = self.make_key('bucket')
 
     def pre(self):
         self.bucket = self.conn.create_bucket(self.bucket_name)
@@ -32,7 +32,7 @@ class TestObject(TestNode):
     depends = TestBucket
 
     def setUp(self):
-        self.key = self.make_key('test_aws_conformance')
+        self.key = self.make_key('object')
         self.value = self.make_key()
 
     def _getKey(self):
