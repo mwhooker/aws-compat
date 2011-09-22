@@ -7,7 +7,7 @@ from awscompat import util
 S3_CONN = S3Connection()
 
 def test_bucket():
-    bucket_name = util.make_key('test_aws_conformance')
+    bucket_name = util.make_key('test_bucket')
 
     bucket = S3_CONN.create_bucket(bucket_name)
     all_buckets = S3_CONN.get_all_buckets()
@@ -22,7 +22,7 @@ def test_bucket():
 
 def test_object(bucket):
 
-    key = util.make_key('test_aws_conformance')
+    key = util.make_key('test_object')
     value = util.make_key()
 
     def get_key():
