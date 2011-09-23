@@ -15,5 +15,14 @@ allow multiple dependencies
     TestInstance.security_groups.group
 
 
-Add Assert methods to base test a la TestCase
+Add Assert methods to base test a la TestCase. ex:
+    assertTrue
+    assertRaises
+    assertCanSSH(host, key) # uses retry w/ expo backoff
+    assertCanGET # expect 200 back. May need to retry on S3.
+
 Improve logging
+
+not only test that, say, security groups work to allow connections, but check that they don't allow connections.
+
+ditch setup/*_condition. merge into pre/post
