@@ -6,13 +6,10 @@ from awscompat import s3_conn, config
 
 class TestBucket(TestNode):
 
-    def setUp(self):
-        self.bucket_name = self.make_uuid('bucket')
 
     def pre(self):
+        self.bucket_name = self.make_uuid('bucket')
         self.bucket = s3_conn.create_bucket(self.bucket_name)
-
-    def pre_condition(self):
 
         all_buckets = s3_conn.get_all_buckets()
         assert self.bucket_name in [bucket.name for bucket in all_buckets]
@@ -20,55 +17,47 @@ class TestBucket(TestNode):
     def post(self):
         s3_conn.delete_bucket(self.bucket_name)
 
-    def post_condition(self):
-
         all_buckets = s3_conn.get_all_buckets()
         assert self.bucket_name not in [bucket.name for bucket in all_buckets]
 
 
 class TestObject(TestNode):
 
-    depends = TestBucket
-
-    def setUp(self):
-        self.key = self.make_uuid('object')
-        self.value = self.make_uuid()
+    depends = {'bucket': TestBucket}
 
     def _getKey(self):
-        k = Key(self.parent.bucket)
+        k = Key(self.bucket)
         k.key = self.key
         return k
 
-    def pre(self):
+    def pre(self, bucket):
+        self.bucket = bucket
+        self.key = self.make_uuid('object')
+        self.value = self.make_uuid()
+
         k = self._getKey()
         k.set_metadata('meta', 'data')
         k.set_contents_from_string(self.value)
 
-    def pre_condition(self):
         k = self._getKey()
         assert k.get_contents_as_string() == self.value
         assert k.get_metadata('meta') == 'data'
 
     def post(self):
         self._getKey().delete()
-
-    def post_condition(self):
         assert not self._getKey().exists()
 
 
 class TestAcl(TestNode):
 
-    depends = TestObject
-
-    def setUp(self):
-        self.h = httplib2.Http()
-        self.k = self.parent._getKey()
+    depends = {'object': TestObject}
 
     def pre(self):
+        self.h = httplib2.Http()
+        self.k = self.parent._getKey()
         self.k.make_public()
         #self.parent.parent.bucket.set_acl('public-read', self.parent.key)
 
-    def pre_condition(self):
         url = self.k.generate_url(60 * 60 * 24, query_auth=False)
         resp, content = self.h.request(url, "GET")
         assert resp['status'] == '200'
@@ -77,7 +66,6 @@ class TestAcl(TestNode):
     def post(self):
         self.k.set_canned_acl('private')
 
-    def post_condition(self):
         url = self.k.generate_url(60 * 60 * 24, query_auth=False)
         resp, content = self.h.request(url, "GET")
         assert resp['status'] == '403'
