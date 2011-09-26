@@ -12,7 +12,10 @@ allow multiple dependencies
             TestInstance
     TestInstance.key_pairs.key_pair
     (or TestInstance.parents[TestKeyPairs].key_pair)
+    # pass explicit arguments to pre. let pre do saving.
+    # or keep setup
     TestInstance.security_groups.group
+    use topo sort
 
 
 Add Assert methods to base test a la TestCase. ex:

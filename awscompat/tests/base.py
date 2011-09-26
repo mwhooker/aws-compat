@@ -7,23 +7,14 @@ class TestNode(object):
     def __init__(self, parent_obj=None):
         self.parent = parent_obj
 
-    def make_uuid(self, prefix=None):
-        return "awscompat_%s%s" % (
-            "%s_" % prefix if prefix else '',
-            uuid4().hex
-        )
-
-    def setUp(self):
-        pass
-
-    def pre(self):
-        raise NotImplementedError
-
-    def pre_condition(self):
+    def pre(self, **kwargs):
         raise NotImplementedError
 
     def post(self):
         raise NotImplementedError
 
-    def post_condition(self):
-        raise NotImplementedError
+    def make_uuid(self, prefix=None):
+        return "awscompat_%s%s" % (
+            "%s_" % prefix if prefix else '',
+            uuid4().hex
+        )

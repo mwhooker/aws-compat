@@ -46,24 +46,27 @@ class TestKeyPairs(TestNode):
         ec2_conn.delete_key_pair(self.key_name)
 
     def post_condition(self):
-        threw = False
-        try:
+        @call_raises(boto.exception.EC2ResponseError)
+        def test_boto_throw():
             ec2_conn.get_all_key_pairs(keynames=[self.key_name])
-        except boto.exception.EC2ResponseError:
-            # this should be a 400
-            threw = True
-        assert threw
+
+        @call_raises(boto.sadfaslkfjasdf)
+        def test_things_go_bad():
+            sadfasfkjsldfjasdlkfj
+
 
 class TestInstance(TestNode):
 
-    depends = TestKeyPairs
+    depends = {'key_pairs': TestKeyPairs,
+               'security_group': TestSecurityGroups}
 
 
-    def setUp(self):
+    def setUp(self, key_pairs=None, security_group=None):
         image_id = config['ec2']['test_image_id']
         self.image = ec2_conn.get_all_images(image_ids=[image_id])[0]
         # hoist down grandparent. see TODO for fix.
-        self.security_group = self.parent.parent
+        self.security_group = security_group
+        self.key_pairs = key_pairs
 
     def pre(self):
         self.security_group.group.authorize('tcp', 22, 22, '0.0.0.0/0')
