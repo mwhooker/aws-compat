@@ -1,6 +1,6 @@
 {
     "ec2": {
-        "test_image_id": "ami-8e1fece7"
+        "test_image_id": "ami-8e1fece7",
         "test_username": "ec2-user"
     }
 }
