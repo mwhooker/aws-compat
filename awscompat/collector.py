@@ -20,5 +20,5 @@ def collect(dir, include_modules=None):
                and v is not base.TestNode:
                 classes.add(v)
 
-    assert len(classes)
+    assert len(classes), "No test cases found."
     return classes
