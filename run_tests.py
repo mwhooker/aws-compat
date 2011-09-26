@@ -2,10 +2,14 @@
 import argparse
 import os.path
 import json
+import sys
+
+sys.path.append(os.path.join(os.path.dirname(__file__), 'third_party'))
 
 import awscompat
 from awscompat import collector
 from awscompat import runner
+
 
 config_path = os.path.join(os.path.dirname(__file__), 'config.json')
 

@@ -2,10 +2,7 @@ from uuid import uuid4
 
 class TestNode(object):
 
-    depends = None
-
-    def __init__(self, parent_obj=None):
-        self.parent = parent_obj
+    depends = {}
 
     def pre(self, **kwargs):
         raise NotImplementedError

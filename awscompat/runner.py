@@ -1,4 +1,9 @@
 from collections import defaultdict
+from topsort import topsort
+
+
+class TestGraphError(Exception):
+    pass
 
 
 """
@@ -21,31 +26,53 @@ class Runner(object):
     def __init__(self, classes):
         self.failures = []
         self.errors = []
-        self.branches = defaultdict(list)
+        dependency_pairs = []
 
         for klass in classes:
-            self.branches[klass.depends].append(klass)
+            if not len(klass.depends):
+                dependency_pairs.append((None, klass))
+                continue
+            for key in klass.depends:
+                dependency_pairs.append((klass.depends[key], klass))
 
-    def run(self, parent_klass=None, parent_obj=None):
+        self.run_order = [klass for klass in topsort(dependency_pairs)
+                          if klass]
 
-        if parent_klass not in self.branches:
-            return
+    def run(self):
 
-        for klass in self.branches[parent_klass]:
-            obj = klass(parent_obj)
+        seen = {}
+
+        def next(classes):
+            if not len(classes):
+                return
+
+            klass = classes.pop(0)
+            obj = klass()
+            seen[klass] = obj
+            parents = {}
+
+            for key in klass.depends:
+                try:
+                    parents[key] = seen[klass.depends[key]]
+                except KeyError:
+                    raise TestGraphError(
+                        "Dependency %s of class %s "
+                        "hasn't been initialized yet." % (
+                            klass.depends[key], klass.__name__
+                        )
+                    )
 
             try:
-                obj.pre()
+                obj.pre(**parents)
             except AssertionError as e:
                 self.pre_failure(obj, e)
-                continue
             except Exception as e:
                 self.pre_error(obj, e)
-                continue
             finally:
                 obj.post()
+                return
 
-            self.run(klass, obj)
+            next(classes)
 
             try:
                 obj.post()
@@ -53,6 +80,9 @@ class Runner(object):
                 self.post_failure(obj, e)
             except Exception as e:
                 self.post_error(obj, e)
+
+        next(list(self.run_order))
+
 
     def pre_failure(self, obj, e):
         self.failures.append((obj, e, 'pre'))
