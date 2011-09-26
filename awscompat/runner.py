@@ -63,23 +63,22 @@ class Runner(object):
                     )
 
             try:
+                print "%s.pre(%s)" % (obj, parents)
                 obj.pre(**parents)
             except AssertionError as e:
                 self.pre_failure(obj, e)
             except Exception as e:
                 self.pre_error(obj, e)
+            else:
+                next(classes)
             finally:
-                obj.post()
-                return
+                try:
+                    obj.post()
+                except AssertionError as e:
+                    self.post_failure(obj, e)
+                except Exception as e:
+                    self.post_error(obj, e)
 
-            next(classes)
-
-            try:
-                obj.post()
-            except AssertionError as e:
-                self.post_failure(obj, e)
-            except Exception as e:
-                self.post_error(obj, e)
 
         next(list(self.run_order))
 
