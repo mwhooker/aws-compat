@@ -7,6 +7,7 @@ from awscompat import s3_conn, ec2_conn, config, util
 
 
 class TestSecurityGroups(TestNode):
+    """Test security group generation."""
 
     def pre(self):
         self.group_name = self.make_uuid('group_name')
@@ -26,6 +27,7 @@ class TestSecurityGroups(TestNode):
             groupnames=[self.group_name]))
 
 class TestKeyPairs(TestNode):
+    """Test keypair generation."""
 
     def pre(self, security_group):
         self.key_name = self.make_uuid('key_name')
@@ -42,6 +44,7 @@ class TestKeyPairs(TestNode):
 
 
 class TestInstance(TestNode):
+    """Test EC2 image launch and termination."""
 
     depends = {
         'key_pairs': TestKeyPairs,
@@ -67,7 +70,6 @@ class TestInstance(TestNode):
             timeout=70
         )
 
-#    def pre_condition(self):
         assert self.canSSH(
             self.parent.keypair.material.encode('ascii'),
             'ec2-user',
@@ -81,6 +83,7 @@ class TestInstance(TestNode):
             lambda: self.reservation.instances[0].update() == 'terminated',
             timeout=120
         )
+
         assert not self.canSSH(
             self.parent.keypair.material.encode('ascii'),
             'ec2-user',
