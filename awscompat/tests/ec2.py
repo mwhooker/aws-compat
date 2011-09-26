@@ -8,67 +8,53 @@ from awscompat import s3_conn, ec2_conn, config, util
 
 class TestSecurityGroups(TestNode):
 
-    def setUp(self):
+    def pre(self):
         self.group_name = self.make_uuid('group_name')
         self.group_desc = self.make_uuid('group_desc')
 
-    def pre(self):
         self.group = ec2_conn.create_security_group(
             self.group_name,
             self.group_desc
         )
 
-    def pre_condition(self):
         assert len(ec2_conn.get_all_security_groups(
             groupnames=[self.group_name]))
 
     def post(self):
         self.group.delete()
-
-    def post_condition(self):
         assert not len(ec2_conn.get_all_security_groups(
             groupnames=[self.group_name]))
 
 class TestKeyPairs(TestNode):
 
-    depends = TestSecurityGroups
-
-    def setUp(self):
+    def pre(self, security_group):
         self.key_name = self.make_uuid('key_name')
-
-    def pre(self):
         self.keypair = ec2_conn.create_key_pair(self.key_name)
 
-    def pre_condition(self):
         assert len(ec2_conn.get_all_key_pairs(keynames=[self.key_name]))
 
     def post(self):
         ec2_conn.delete_key_pair(self.key_name)
 
-    def post_condition(self):
-        @call_raises(boto.exception.EC2ResponseError)
+        @self.call_raises(boto.exception.EC2ResponseError)
         def test_boto_throw():
             ec2_conn.get_all_key_pairs(keynames=[self.key_name])
-
-        @call_raises(boto.sadfaslkfjasdf)
-        def test_things_go_bad():
-            sadfasfkjsldfjasdlkfj
 
 
 class TestInstance(TestNode):
 
-    depends = {'key_pairs': TestKeyPairs,
-               'security_group': TestSecurityGroups}
+    depends = {
+        'key_pairs': TestKeyPairs,
+        'security_group': TestSecurityGroups
+    }
 
 
-    def setUp(self, key_pairs=None, security_group=None):
+    def pre(self, key_pairs=None, security_group=None):
         image_id = config['ec2']['test_image_id']
         self.image = ec2_conn.get_all_images(image_ids=[image_id])[0]
-        # hoist down grandparent. see TODO for fix.
         self.security_group = security_group
         self.key_pairs = key_pairs
 
-    def pre(self):
         self.security_group.group.authorize('tcp', 22, 22, '0.0.0.0/0')
         self.reservation = self.image.run(
             instance_type='t1.micro',
@@ -81,27 +67,13 @@ class TestInstance(TestNode):
             timeout=70
         )
 
-    def pre_condition(self):
-        key_file = StringIO(self.parent.keypair.material.encode('ascii'))
-        rsa_key = paramiko.RSAKey(file_obj=key_file)
-        host = self.reservation.instances[0].public_dns_name
+#    def pre_condition(self):
+        assert self.canSSH(
+            self.parent.keypair.material.encode('ascii'),
+            'ec2-user',
+            self.reservation.instances[0].public_dns_name
+        )
 
-        transport = paramiko.Transport((host, 22))
-        transport.connect(username='ec2-user', pkey=rsa_key)
-        channel = transport.open_session()
-        channel.exec_command('uname')
-        output = channel.makefile('rb', -1).readlines()
-        print "output: ", output
-
-        """
-        client = paramiko.SSHClient()
-        client.get_host_keys().add(host, 'ssh-rsa', key)
-        client.connect(host, username='ec2-user')
-        stdin, stdout, stderr = client.exec_command('uname')
-        for line in stdout:
-            print '... ' + line.strip('\n')
-        client.close()
-        """
 
     def post(self):
         self.reservation.instances[0].terminate()
@@ -109,10 +81,11 @@ class TestInstance(TestNode):
             lambda: self.reservation.instances[0].update() == 'terminated',
             timeout=120
         )
-
-    def post_condition(self):
-        pass
-
+        assert not self.canSSH(
+            self.parent.keypair.material.encode('ascii'),
+            'ec2-user',
+            self.reservation.instances[0].public_dns_name
+        )
 
 
 """

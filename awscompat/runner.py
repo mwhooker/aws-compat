@@ -33,35 +33,26 @@ class Runner(object):
 
         for klass in self.branches[parent_klass]:
             obj = klass(parent_obj)
-            obj.setUp()
 
             try:
                 obj.pre()
-                obj.pre_condition()
-            except (Exception, AssertionError) as e:
+            except AssertionError as e:
                 self.pre_failure(obj, e)
-                """
-                try:
-                    obj.post()
-                except Exception:
-                    pass
                 continue
-                """
+            except Exception as e:
+                self.pre_error(obj, e)
+                continue
+            finally:
+                obj.post()
 
             self.run(klass, obj)
 
-            """
             try:
                 obj.post()
-            except Exception, e:
-                self.post_error(obj, e)
-                continue
-
-            try:
-                obj.post_condition()
-            except (Exception, AssertionError) as e:
+            except AssertionError as e:
                 self.post_failure(obj, e)
-            """
+            except Exception as e:
+                self.post_error(obj, e)
 
     def pre_failure(self, obj, e):
         self.failures.append((obj, e, 'pre'))
