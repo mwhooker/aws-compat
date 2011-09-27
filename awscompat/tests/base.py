@@ -40,3 +40,23 @@ class TestNode(object):
             print '... ' + line.strip('\n')
         client.close()
         """
+
+    def assert_raises(exc):
+        """
+        Decorator for functions which should raise exceptions.
+
+        Will invoke the method upon definition.
+        method should take no arguments.
+        exc is the type of exception expected.
+        """
+        def wraps(f):
+            threw = False
+            try:
+                f()
+            except Exception, e:
+                if isinstance(e, exc):
+                    threw = True
+                else:
+                    raise e
+            assert threw
+        return wraps

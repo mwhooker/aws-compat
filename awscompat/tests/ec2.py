@@ -38,7 +38,7 @@ class TestKeyPairs(TestNode):
     def post(self):
         ec2_conn.delete_key_pair(self.key_name)
 
-        @self.call_raises(boto.exception.EC2ResponseError)
+        @self.assert_raises(boto.exception.EC2ResponseError)
         def test_boto_throw():
             ec2_conn.get_all_key_pairs(keynames=[self.key_name])
 
