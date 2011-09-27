@@ -59,7 +59,7 @@ class TestAcl(TestNode):
         self.k = self.test_object._getKey()
         self.k.make_public()
 
-        url = self.k.generate_url(60 * 60 * 24, query_auth=False)
+        url = self.k.generate_url(60 * 60 * 24, query_auth=False, force_http=True)
         resp, content = self.h.request(url, "GET")
         assert resp['status'] == '200'
         assert content == self.test_object.value
@@ -67,6 +67,6 @@ class TestAcl(TestNode):
     def post(self):
         self.k.set_canned_acl('private')
 
-        url = self.k.generate_url(60 * 60 * 24, query_auth=False)
+        url = self.k.generate_url(60 * 60 * 24, query_auth=False, force_http=True)
         resp, content = self.h.request(url, "GET")
         assert resp['status'] == '403'

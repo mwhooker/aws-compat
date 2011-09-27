@@ -4,7 +4,7 @@ from topsort import topsort
 
 log = logging.getLogger('awscompat')
 ch = logging.StreamHandler()
-ch.setLevel(logging.DEBUG)
+log.setLevel(logging.DEBUG)
 log.addHandler(ch)
 
 
@@ -53,6 +53,7 @@ class Runner(object):
                 return
 
             klass = classes.pop(0)
+            log.debug("Running %s" % klass.__name__)
             obj = klass()
             seen[klass] = obj
             parents = {}
