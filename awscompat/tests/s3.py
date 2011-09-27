@@ -26,12 +26,12 @@ class TestObject(TestNode):
     depends = {'bucket': TestBucket}
 
     def _getKey(self):
-        k = Key(self.bucket)
+        k = Key(self.test_bucket.bucket)
         k.key = self.key
         return k
 
     def pre(self, bucket):
-        self.bucket = bucket
+        self.test_bucket = bucket
         self.key = self.make_uuid('object')
         self.value = self.make_uuid()
 
@@ -52,16 +52,17 @@ class TestAcl(TestNode):
 
     depends = {'object': TestObject}
 
-    def pre(self):
+    def pre(self, object):
+        self.test_object = object
+
         self.h = httplib2.Http()
-        self.k = self.parent._getKey()
+        self.k = self.test_object._getKey()
         self.k.make_public()
-        #self.parent.parent.bucket.set_acl('public-read', self.parent.key)
 
         url = self.k.generate_url(60 * 60 * 24, query_auth=False)
         resp, content = self.h.request(url, "GET")
         assert resp['status'] == '200'
-        assert content == self.parent.value
+        assert content == self.test_object.value
 
     def post(self):
         self.k.set_canned_acl('private')
