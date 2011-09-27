@@ -1,8 +1,12 @@
+import httplib2
 from uuid import uuid4
 
 class TestNode(object):
 
     depends = {}
+
+    def __init__(self):
+        self.http = httplib2.Http()
 
     def pre(self, **kwargs):
         raise NotImplementedError

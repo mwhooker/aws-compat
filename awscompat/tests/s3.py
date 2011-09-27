@@ -1,4 +1,3 @@
-import httplib2
 from boto.s3.key import Key
 from base import TestNode
 from awscompat import s3_conn, config
@@ -55,18 +54,19 @@ class TestAcl(TestNode):
     def pre(self, object):
         self.test_object = object
 
-        self.h = httplib2.Http()
         self.k = self.test_object._getKey()
         self.k.make_public()
 
-        url = self.k.generate_url(60 * 60 * 24, query_auth=False, force_http=True)
-        resp, content = self.h.request(url, "GET")
+        url = self.k.generate_url(60 * 60 * 24, query_auth=False,
+                                  force_http=True)
+        resp, content = self.http.request(url, "GET")
         assert resp['status'] == '200'
         assert content == self.test_object.value
 
     def post(self):
         self.k.set_canned_acl('private')
 
-        url = self.k.generate_url(60 * 60 * 24, query_auth=False, force_http=True)
-        resp, content = self.h.request(url, "GET")
+        url = self.k.generate_url(60 * 60 * 24, query_auth=False,
+                                  force_http=True)
+        resp, content = self.http.request(url, "GET")
         assert resp['status'] == '403'
