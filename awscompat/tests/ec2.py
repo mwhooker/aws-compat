@@ -1,7 +1,5 @@
 import base64
-import paramiko
 import boto.exception
-from cStringIO import StringIO
 from base import TestNode
 from awscompat import s3_conn, ec2_conn, config, util
 
@@ -29,7 +27,7 @@ class TestSecurityGroups(TestNode):
 class TestKeyPairs(TestNode):
     """Test keypair generation."""
 
-    def pre(self, security_group):
+    def pre(self):
         self.key_name = self.make_uuid('key_name')
         self.keypair = ec2_conn.create_key_pair(self.key_name)
 
@@ -62,7 +60,7 @@ class TestInstance(TestNode):
         self.reservation = self.image.run(
             instance_type='t1.micro',
             security_groups=[self.security_group.group_name],
-            key_name=self.parent.key_name
+            key_name=self.key_pairs.key_name
         )
 
         util.wait(
@@ -71,7 +69,7 @@ class TestInstance(TestNode):
         )
 
         assert self.canSSH(
-            self.parent.keypair.material.encode('ascii'),
+            self.key_pairs.keypair.material.encode('ascii'),
             'ec2-user',
             self.reservation.instances[0].public_dns_name
         )
@@ -85,7 +83,7 @@ class TestInstance(TestNode):
         )
 
         assert not self.canSSH(
-            self.parent.keypair.material.encode('ascii'),
+            self.key_pairs.keypair.material.encode('ascii'),
             'ec2-user',
             self.reservation.instances[0].public_dns_name
         )

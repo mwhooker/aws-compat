@@ -1,4 +1,6 @@
 import httplib2
+import paramiko
+from cStringIO import StringIO
 from uuid import uuid4
 
 class TestNode(object):
@@ -41,6 +43,7 @@ class TestNode(object):
         client.close()
         """
 
+    @staticmethod
     def assert_raises(exc):
         """
         Decorator for functions which should raise exceptions.
