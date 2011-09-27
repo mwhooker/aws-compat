@@ -1,5 +1,11 @@
+import logging
 from collections import defaultdict
 from topsort import topsort
+
+log = logging.getLogger('awscompat')
+ch = logging.StreamHandler()
+ch.setLevel(logging.DEBUG)
+log.addHandler(ch)
 
 
 class TestGraphError(Exception):
@@ -65,43 +71,43 @@ class Runner(object):
             try:
                 obj.pre(**parents)
             except AssertionError as e:
-                self.pre_failure(obj, e)
+                self.pre_failure(obj)
             except Exception as e:
-                self.pre_error(obj, e)
+                log.exception(e)
+                self.pre_error(obj)
             else:
                 next(classes)
 
             try:
                 obj.post()
             except AssertionError as e:
-                self.post_failure(obj, e)
+                self.post_failure(obj)
             except Exception as e:
-                self.post_error(obj, e)
+                log.exception(e)
+                self.post_error(obj)
 
 
         next(list(self.run_order))
 
 
-    def pre_failure(self, obj, e):
-        self.failures.append((obj, e, 'pre'))
+    def pre_failure(self, obj):
+        self.failures.append((obj, 'pre'))
 
-    def pre_error(self, obj, e):
-        self.errors.append((obj, e, 'pre'))
+    def pre_error(self, obj):
+        self.errors.append((obj, 'pre'))
 
-    def post_failure(self, obj, e):
-        self.failures.append((obj, e, 'post'))
+    def post_failure(self, obj):
+        self.failures.append((obj, 'post'))
 
-    def post_error(self, obj, e):
-        self.errors.append((obj, e, 'post'))
+    def post_error(self, obj):
+        self.errors.append((obj, 'post'))
 
     def print_messages(self):
         if len(self.errors):
-            print "errors: ", len(self.errors)
-            print self.errors
+            log.error("errors: %d" % len(self.errors))
 
         if len(self.failures):
-            print "failures: ", len(self.failures)
-            print self.failures
+            log.info("failures: %d" % len(self.failures))
 
         if not len(self.failures) and not len(self.errors):
-            print "OK"
+            log.info('OK')
