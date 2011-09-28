@@ -2,6 +2,7 @@ import httplib2
 import paramiko
 from cStringIO import StringIO
 from uuid import uuid4
+from awscompat.util import retry
 
 class TestNode(object):
 
@@ -27,21 +28,15 @@ class TestNode(object):
         rsa_key = paramiko.RSAKey(file_obj=key_file)
 
         transport = paramiko.Transport((host, 22))
-        transport.connect(username=username, pkey=rsa_key)
-        channel = transport.open_session()
-        channel.exec_command('uname')
-        output = channel.makefile('rb', -1).readlines()
-        print "output: ", output
-        return False
-        """
-        client = paramiko.SSHClient()
-        client.get_host_keys().add(host, 'ssh-rsa', key)
-        client.connect(host, username='ec2-user')
-        stdin, stdout, stderr = client.exec_command('uname')
-        for line in stdout:
-            print '... ' + line.strip('\n')
-        client.close()
-        """
+        def connect():
+            transport.connect(username=username, pkey=rsa_key)
+            channel = transport.open_session()
+            channel.exec_command('uname')
+            output = channel.makefile('rb', -1).readlines()
+            print "output: ", output
+            return False
+
+        util.retry(connect)
 
     @staticmethod
     def assert_raises(exc):
