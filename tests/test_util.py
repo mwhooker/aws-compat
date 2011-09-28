@@ -24,8 +24,12 @@ class TestRetry(TestCase):
 
 
     def test_invoke(self):
-        def mock():
-            self._mock(succeed_on_try=2)
+        mock = lambda: self._mock(succeed_on_try=2)
 
         util.retry(mock, max_tries=5)
         self.assertTrue(self.mock_called, 2)
+
+    def test_raises(self):
+        mock = lambda: self._mock()
+
+        self.assertRaises(Exception, util.retry, (mock,))

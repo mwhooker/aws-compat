@@ -23,12 +23,7 @@ def wait(condition, wait=0.1, timeout=30):
             raise TimeoutException()
 
 
-"""
-class Retry(object):
-    def __init__(self, 
-
-"""
-def retry(f=None, max_tries=5, wait_exp=0):
+def retry(f=None, max_tries=5, wait_exp=None):
     """
     Retry function f
 
@@ -38,11 +33,13 @@ def retry(f=None, max_tries=5, wait_exp=0):
         max_tries   number of times to try before giving up
         wait_exp    wait n^wait_exp seconds between retries
                     where n is the iteration
+                    no wait if None
     """
     def wrapper(f):
         def inner(*args, **kwargs):
             for i in xrange(max_tries):
-                time.sleep(i ** wait_exp)
+                if wait_exp:
+                    time.sleep(i ** wait_exp)
                 try:
                     return f(*args, **kwargs)
                 except Exception:
