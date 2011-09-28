@@ -1,10 +1,10 @@
 from boto.s3.key import Key
 from base import TestNode
-from awscompat import s3_conn
+from awscompat.connections import s3_conn
 
 
 class TestBucket(TestNode):
-
+# TODO: don't use get_all_buckets without a filter.
 
     def pre(self):
         self.bucket_name = self.make_uuid('bucket')
