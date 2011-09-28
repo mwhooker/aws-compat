@@ -19,7 +19,6 @@ class TestRetry(TestCase):
         def mock():
             self._mock(succeed_on_try=2)
 
-        print 'mock: ', mock
         mock()
         self.assertTrue(self.mock_called, 2)
 

@@ -28,17 +28,21 @@ class Retry(object):
     def __init__(self, 
 
 """
-def retry(f=None, max_tries=5):
-    """ Retry function f
+def retry(f=None, max_tries=5, wait_exp=0):
+    """
+    Retry function f
 
     can be used as a decorator or invoked directly.
 
     args:
-        max_tries number of times to try before giving up
+        max_tries   number of times to try before giving up
+        wait_exp    wait n^wait_exp seconds between retries
+                    where n is the iteration
     """
     def wrapper(f):
         def inner(*args, **kwargs):
             for i in xrange(max_tries):
+                time.sleep(i ** wait_exp)
                 try:
                     return f(*args, **kwargs)
                 except Exception:
