@@ -21,8 +21,10 @@ class TestSecurityGroups(TestNode):
 
     def post(self):
         self.group.delete()
-        assert not len(ec2_conn.get_all_security_groups(
-            groupnames=[self.group_name]))
+
+        @self.assert_raises(boto.exception.EC2ResponseError)
+        def test_throw():
+            ec2_conn.get_all_security_groups(groupnames=[self.group_name])
 
 class TestKeyPairs(TestNode):
     """Test keypair generation."""
