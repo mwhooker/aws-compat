@@ -1,6 +1,6 @@
 from boto.s3.key import Key
 from base import TestNode
-from awscompat import s3_conn, config
+from awscompat import s3_conn
 
 
 class TestBucket(TestNode):
