@@ -34,7 +34,7 @@ class TestNode(object):
             channel = transport.open_session()
             channel.exec_command('uname')
             output = channel.makefile('rb', -1).readlines()
-            return boolean(len(output))
+            return bool(len(output))
 
         try:
             return util.retry(connect, max_tries=7, wait_exp=2)
