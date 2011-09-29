@@ -10,3 +10,10 @@ Improve logging
 not only test that, say, security groups work to allow connections, but check that they don't allow connections.
 
 fix TestInstance.
+    - canTelnet failing
+
+write general purpose requester which polls until the response changes 
+    that will let us remove util.wait & util.retry
+
+
+write debug lib which drops into iPython shell every time an assertion triggers.
