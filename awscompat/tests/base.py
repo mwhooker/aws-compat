@@ -4,6 +4,7 @@ import paramiko
 from cStringIO import StringIO
 from uuid import uuid4
 from awscompat import util
+from socket import timeout
 
 class TestNode(object):
 
@@ -47,9 +48,8 @@ class TestNode(object):
         client = telnetlib.Telnet()
 
         try:
-            client.open(host, port)
-        except Exception, e:
-            print "telnet error: ", e
+            client.open(host, port, timeout=5)
+        except timeout:
             return False
         return True
 
