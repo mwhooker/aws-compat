@@ -1,31 +1,12 @@
 run each path through test graph asynchronously
 
 
-convenience method for accessing parent attributes
-    search towards root for attribute
-    self.parent('key')
-
-allow multiple dependencies
-    TestKeyPairs    TestSecurityGroups
-        \ _               _ /
-           \             /
-            TestInstance
-    TestInstance.key_pairs.key_pair
-    (or TestInstance.parents[TestKeyPairs].key_pair)
-    # pass explicit arguments to pre. let pre do saving.
-    # or keep setup
-    TestInstance.security_groups.group
-    use topo sort
-
-
 Add Assert methods to base test a la TestCase. ex:
     assertTrue
-    assertRaises
-    assertCanSSH(host, key) # uses retry w/ expo backoff
     assertCanGET # expect 200 back. May need to retry on S3.
 
 Improve logging
 
 not only test that, say, security groups work to allow connections, but check that they don't allow connections.
 
-ditch setup/*_condition. merge into pre/post
+fix TestInstance.
