@@ -65,7 +65,7 @@ class Runner(object):
                     raise TestGraphError(
                         "Dependency %s of class %s "
                         "hasn't been initialized yet." % (
-                            klass.depends[key], klass.__name__
+                            klass.depends[key].__name__, klass.__name__
                         )
                     )
 
