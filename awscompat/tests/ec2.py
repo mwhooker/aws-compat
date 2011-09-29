@@ -95,10 +95,11 @@ class TestInstance(TestNode):
             timeout=60 * 2
         )
 
-        assert not self.canTelnet(
-            self.reservation.instances[0].public_dns_name,
-            22
-        ), "could telnet"
+        assert not self.canSSH(
+            self.key_pairs.keypair.material.encode('ascii'),
+            'ec2-user',
+            self.reservation.instances[0].public_dns_name
+        )
 
 
 """

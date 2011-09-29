@@ -17,7 +17,13 @@ def wait(condition, wait=0.1, timeout=30):
 
     assert callable(condition)
     start = time.time()
-    while not condition():
+    while True:
+        try:
+            ret = condition()
+            if ret:
+                return
+        except Exception, e:
+            pass
         time.sleep(0.1)
         if time.time() >= start + timeout:
             raise TimeoutException()
