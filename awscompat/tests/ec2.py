@@ -18,12 +18,21 @@ class TestSecurityGroups(TestNode):
             self.group_desc
         )
 
-        assert len(ec2_conn.get_all_security_groups(
-            groupnames=[self.group_name]))
+
+        groups = util.retry(
+            lambda: ec2_conn.get_all_security_groups(
+                groupnames=[self.group_name])
+        )
+
+        assert len(groups)
 
     def post(self):
         self.group.delete()
 
+        # TODO: this might not raise because of delay.
+        # so I can't use the retry controller
+        # I should write a general purpose request wrapper
+        # which polls until it gets a different response.
         @self.assert_raises(boto.exception.EC2ResponseError)
         def test_throw():
             ec2_conn.get_all_security_groups(groupnames=[self.group_name])
