@@ -13,4 +13,4 @@
 
    * A test runner which executes a "test strategy" against a live openstack install and summarizes which strategies passed and which failed.
    * The "test strategy" will be written in python to the awscompat API
-   * The test runner will mutate the target system's state while running, but will do its best to leave system in its original state.
+   * The test runner will mutate the target system's state while running, but will do its best to leave the system in its original state.
