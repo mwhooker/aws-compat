@@ -1,8 +1,9 @@
 import httplib2
+import telnetlib
 import paramiko
 from cStringIO import StringIO
 from uuid import uuid4
-from awscompat.util import retry
+from awscompat import util
 
 class TestNode(object):
 
@@ -27,16 +28,30 @@ class TestNode(object):
         key_file = StringIO(key)
         rsa_key = paramiko.RSAKey(file_obj=key_file)
 
-        transport = paramiko.Transport((host, 22))
         def connect():
+            transport = paramiko.Transport((host, 22))
             transport.connect(username=username, pkey=rsa_key)
             channel = transport.open_session()
             channel.exec_command('uname')
             output = channel.makefile('rb', -1).readlines()
-            print "output: ", output
+            return boolean(len(output))
+
+        try:
+            return util.retry(connect, max_tries=7, wait_exp=2)
+        except Exception as e:
+            print "ssh exception: ", e
+            # todo: log e
             return False
 
-        util.retry(connect)
+    def canTelnet(self, host, port):
+        client = telnetlib.Telnet()
+
+        try:
+            client.open(host, port)
+        except Exception, e:
+            print "telnet error: ", e
+            return False
+        return True
 
     @staticmethod
     def assert_raises(exc):

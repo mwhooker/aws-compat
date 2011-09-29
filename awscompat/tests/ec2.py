@@ -69,7 +69,7 @@ class TestInstance(TestNode):
 
         util.wait(
             lambda: self.reservation.instances[0].update() == 'running',
-            timeout=70
+            timeout=120
         )
 
         assert self.canSSH(
@@ -86,10 +86,9 @@ class TestInstance(TestNode):
             timeout=120
         )
 
-        assert not self.canSSH(
-            self.key_pairs.keypair.material.encode('ascii'),
-            'ec2-user',
-            self.reservation.instances[0].public_dns_name
+        assert not self.canTelnet(
+            self.reservation.instances[0].public_dns_name,
+            22
         )
 
 

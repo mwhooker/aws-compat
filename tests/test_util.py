@@ -9,7 +9,7 @@ class TestRetry(TestCase):
     def _mock(self, succeed_on_try=None):
         self.mock_called += 1
         if self.mock_called == succeed_on_try:
-            return True
+            return 42
         print self.mock_called
         raise Exception
 
@@ -17,17 +17,18 @@ class TestRetry(TestCase):
 
         @util.retry(max_tries=5)
         def mock():
-            self._mock(succeed_on_try=2)
+            return self._mock(succeed_on_try=2)
 
-        mock()
-        self.assertTrue(self.mock_called, 2)
+        self.assertEqual(mock(), 42)
+        self.assertEqual(self.mock_called, 2)
 
 
     def test_invoke(self):
         mock = lambda: self._mock(succeed_on_try=2)
 
-        util.retry(mock, max_tries=5)
-        self.assertTrue(self.mock_called, 2)
+        ret = util.retry(mock, max_tries=5)
+        self.assertEqual(ret, 42)
+        self.assertEqual(self.mock_called, 2)
 
     def test_raises(self):
         mock = lambda: self._mock()

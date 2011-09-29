@@ -72,6 +72,7 @@ class Runner(object):
             try:
                 obj.pre(**parents)
             except AssertionError as e:
+                log.exception(e)
                 self.pre_failure(obj)
             except Exception as e:
                 log.exception(e)
@@ -82,6 +83,7 @@ class Runner(object):
             try:
                 obj.post()
             except AssertionError as e:
+                log.exception(e)
                 self.post_failure(obj)
             except Exception as e:
                 log.exception(e)
