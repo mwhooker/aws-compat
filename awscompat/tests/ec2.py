@@ -78,7 +78,7 @@ class TestInstance(TestNode):
 
         util.wait(
             lambda: self.reservation.instances[0].update() == 'running',
-            timeout=120
+            timeout=60 * 3
         )
 
         assert self.canSSH(
@@ -92,13 +92,13 @@ class TestInstance(TestNode):
         self.reservation.instances[0].terminate()
         util.wait(
             lambda: self.reservation.instances[0].update() == 'terminated',
-            timeout=120
+            timeout=60 * 2
         )
 
         assert not self.canTelnet(
             self.reservation.instances[0].public_dns_name,
             22
-        )
+        ), "could telnet"
 
 
 """
