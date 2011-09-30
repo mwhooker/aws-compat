@@ -17,3 +17,5 @@ write general purpose requester which polls until the response changes
 
 
 write debug lib which drops into iPython shell every time an assertion triggers.
+
+enpoints may fail because of internal server errors. Account for that and retry at a higher level (i.e. in the runner)
