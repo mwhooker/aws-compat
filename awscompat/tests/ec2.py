@@ -1,9 +1,7 @@
-import time
-import base64
 import boto.exception
-from base import TestNode
 from awscompat import config, util
-from awscompat.connections import s3_conn, ec2_conn
+from awscompat.connections import ec2_conn
+from awscompat.tests.base import TestNode
 
 
 class TestSecurityGroups(TestNode):
