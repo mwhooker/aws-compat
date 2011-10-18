@@ -5,13 +5,13 @@ import time
 
 class TimeoutException(Exception): pass
 
-def wait(condition, wait=0.1, timeout=30):
+def wait(condition, interval=0.1, timeout=30):
     """
-    Loop until condition() is True or timeout.
+    Block until condition() is True or timeout.
 
     Params:
         condition: callable. Boolean return type
-        wait: how long to wait in between calls to condition
+        interval: how long to wait, in seconds, in between calls to condition
         timout: if set, how long to wait, in seconds, before aborting.
     """
 
@@ -24,7 +24,8 @@ def wait(condition, wait=0.1, timeout=30):
                 return
         except Exception, e:
             pass
-        time.sleep(0.1)
+        if interval:
+            time.sleep(interval)
         if time.time() >= start + timeout:
             raise TimeoutException()
 
