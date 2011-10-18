@@ -41,23 +41,27 @@ class Runner(object):
             for key in klass.depends:
                 dependency_pairs.append((klass.depends[key], klass))
 
-        self.run_order = [klass for klass in topsort(dependency_pairs)
+        self.run_list = [klass for klass in topsort(dependency_pairs)
                           if klass]
 
     def run(self):
 
+        # copy run_list because we'll mutate it
+        run_list = list(self.run_list)
         seen = {}
 
         def next(classes):
             if not len(classes):
                 return
 
+            # set up the class at the head of `classes`
             klass = classes.pop(0)
             log.debug("Running %s" % klass.__name__)
             obj = klass()
             seen[klass] = obj
             parents = {}
 
+            # build list of initialized parents
             for key in klass.depends:
                 try:
                     parents[key] = seen[klass.depends[key]]
@@ -90,7 +94,7 @@ class Runner(object):
                 self.post_error(obj)
 
 
-        next(list(self.run_order))
+        next(run_list)
 
 
     def pre_failure(self, obj):

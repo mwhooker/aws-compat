@@ -37,8 +37,8 @@ def retry(f=None, max_tries=5, wait_exp=None):
 
     args:
         max_tries   number of times to try before giving up
-        wait_exp    wait n^wait_exp seconds between retries
-                    where n is the iteration
+        wait_exp    wait n ^ wait_exp seconds between retries
+                    where n is the number of attempts (0 indexed)
                     no wait if None
     """
     def wrapper(f):
