@@ -25,27 +25,23 @@ class TestNode(object):
             uuid4().hex
         )
 
-# TODO: in certain cases (ie TestInstance.post), we don't want to retry until
-# this function succeeds, because the expected behavior is that it fails.
     def testSSH(self, key, username, host):
         key_file = StringIO(key)
         rsa_key = paramiko.RSAKey(file_obj=key_file)
 
-        def connect():
-            transport = paramiko.Transport((host, 22))
+        transport = paramiko.Transport((host, 22))
+        try:
             transport.connect(username=username, pkey=rsa_key)
             channel = transport.open_session()
             channel.exec_command('uname')
-            output = channel.makefile('rb', -1).readlines()
-            return bool(len(output))
-
-        try:
-            return util.retry(connect, max_tries=7, wait_exp=2)
-        except Exception as e:
-            # todo: log e
+        except paramiko.SSHException as e:
+            # TODO: log e
             return False
 
-    def canTelnet(self, host, port):
+        output = channel.makefile('rb', -1).readlines()
+        return bool(len(output))
+
+    def testTelnet(self, host, port):
         client = telnetlib.Telnet()
 
         try:

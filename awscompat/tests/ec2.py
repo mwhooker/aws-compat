@@ -79,10 +79,13 @@ class TestInstance(TestNode):
             timeout=60 * 3
         )
 
-        assert self.testSSH(
-            self.key_pairs.keypair.material.encode('ascii'),
-            'ec2-user',
-            self.reservation.instances[0].public_dns_name
+        assert util.retry(
+            lambda: self.testSSH(
+                self.key_pairs.keypair.material.encode('ascii'),
+                'ec2-user',
+                self.reservation.instances[0].public_dns_name
+            ),
+            wait_exp=2
         )
 
 
@@ -93,10 +96,13 @@ class TestInstance(TestNode):
             timeout=60 * 2
         )
 
-        assert not self.testSSH(
-            self.key_pairs.keypair.material.encode('ascii'),
-            'ec2-user',
-            self.reservation.instances[0].public_dns_name
+        assert util.retry(
+            lambda: not self.testSSH(
+                self.key_pairs.keypair.material.encode('ascii'),
+                'ec2-user',
+                self.reservation.instances[0].public_dns_name
+            ),
+            wait_exp=2
         )
 
 
