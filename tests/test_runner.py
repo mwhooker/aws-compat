@@ -1,4 +1,5 @@
 import functools
+import topsort
 from awscompat import runner
 from unittest import TestCase
 
@@ -7,10 +8,10 @@ from unittest import TestCase
 class MockNode(object):
 
     def pre(self, **parents):
-        pass
+        self.record.append(self.__class__.__name__ + '_pre')
 
     def post(self):
-        self.record.append(self.__class__.__name__)
+        self.record.append(self.__class__.__name__ + '_post')
 
 
 def build_node(name, depends=None, record=None):
@@ -27,7 +28,10 @@ class CallRecord(list):
 
     def testOrder(self, lhs, rhs):
         """Test that class lhs appears before class rhs in self."""
-        return self.index(lhs.__name__) < self.index(rhs.__name__)
+
+        lhs = lhs.__name__ + '_pre'
+        rhs = rhs.__name__ + '_pre'
+        return self.index(lhs) < self.index(rhs)
 
 class TestRunner(TestCase):
 
@@ -47,7 +51,15 @@ class TestRunner(TestCase):
 
         fixture = runner.Runner(classes)
         fixture.run()
+        print self.call_record
 
-        self.assertTrue(self.call_record.testOrder(b, a))
-        self.assertTrue(self.call_record.testOrder(c, b))
-        self.assertTrue(self.call_record.testOrder(d, a))
+        self.assertTrue(self.call_record.testOrder(a, b))
+        self.assertTrue(self.call_record.testOrder(b, c))
+        self.assertTrue(self.call_record.testOrder(a, d))
+
+    def test_cycles(self):
+        a = self.build('a')
+        b = self.build('b', a)
+        a.depends = {'b': b}
+
+        self.assertRaises(topsort.CycleError, runner.Runner, [a, b])
