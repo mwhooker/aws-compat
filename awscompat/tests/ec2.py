@@ -79,7 +79,7 @@ class TestInstance(TestNode):
             timeout=60 * 3
         )
 
-        assert self.canSSH(
+        assert self.testSSH(
             self.key_pairs.keypair.material.encode('ascii'),
             'ec2-user',
             self.reservation.instances[0].public_dns_name
@@ -93,7 +93,7 @@ class TestInstance(TestNode):
             timeout=60 * 2
         )
 
-        assert not self.canSSH(
+        assert not self.testSSH(
             self.key_pairs.keypair.material.encode('ascii'),
             'ec2-user',
             self.reservation.instances[0].public_dns_name

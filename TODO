@@ -1,6 +1,5 @@
 run each path through test graph asynchronously
 
-
 Add Assert methods to base test a la TestCase. ex:
     assertTrue
     assertCanGET # expect 200 back. May need to retry on S3.
@@ -15,11 +14,9 @@ fix TestInstance.
 write general purpose requester which polls until the response changes 
     that will let us remove util.wait & util.retry
 
-
 write debug lib which drops into iPython shell every time an assertion triggers.
 
 enpoints may fail because of internal server errors. Account for that and retry at a higher level (i.e. in the runner)
 
-
-Potentially, for more explicivity, in the runner, pass the next method to the post method of the current test a la WSGI. Let the test decide when to call next
+Potentially, for more explicivity: in the runner, pass the next method to the post method of the current test a la WSGI. Let the test decide when to call next
 Cons are that the user may not call next.

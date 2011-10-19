@@ -27,7 +27,7 @@ class TestNode(object):
 
 # TODO: in certain cases (ie TestInstance.post), we don't want to retry until
 # this function succeeds, because the expected behavior is that it fails.
-    def canSSH(self, key, username, host):
+    def testSSH(self, key, username, host):
         key_file = StringIO(key)
         rsa_key = paramiko.RSAKey(file_obj=key_file)
 
