@@ -112,6 +112,9 @@ class Runner(object):
     def flush_messages(self):
         """log errors & failures. flush messages."""
 
+        if not len(self.failures) and not len(self.errors):
+            log.info('OK')
+
         if len(self.errors):
             for err in self.errors:
                 print err
@@ -121,6 +124,3 @@ class Runner(object):
         if len(self.failures):
             log.info("failures: %d" % len(self.failures))
             self.failures = []
-
-        if not len(self.failures) and not len(self.errors):
-            log.info('OK')
