@@ -26,11 +26,22 @@ def build_node(name, depends=None, record=None):
 
 class CallRecord(list):
 
-    def testOrder(self, lhs, rhs):
-        """Test that class lhs appears before class rhs in self."""
+    def testPreOrder(self, lhs, rhs):
+        """Test the pre method order.
+
+        True if lhs comes first."""
 
         lhs = lhs.__name__ + '_pre'
         rhs = rhs.__name__ + '_pre'
+        return self.index(lhs) < self.index(rhs)
+
+    def testPostOrder(self, lhs, rhs):
+        """Test the post method order.
+
+        True if lhs comes first."""
+
+        lhs = lhs.__name__ + '_post'
+        rhs = rhs.__name__ + '_post'
         return self.index(lhs) < self.index(rhs)
 
 class TestRunner(TestCase):
@@ -51,11 +62,14 @@ class TestRunner(TestCase):
 
         fixture = runner.Runner(classes)
         fixture.run()
-        print self.call_record
 
-        self.assertTrue(self.call_record.testOrder(a, b))
-        self.assertTrue(self.call_record.testOrder(b, c))
-        self.assertTrue(self.call_record.testOrder(a, d))
+        self.assertTrue(self.call_record.testPreOrder(a, b))
+        self.assertTrue(self.call_record.testPreOrder(b, c))
+        self.assertTrue(self.call_record.testPreOrder(a, d))
+
+        self.assertTrue(self.call_record.testPostOrder(b, a))
+        self.assertTrue(self.call_record.testPostOrder(c, b))
+        self.assertTrue(self.call_record.testPostOrder(d, a))
 
     def test_cycles(self):
         a = self.build('a')
