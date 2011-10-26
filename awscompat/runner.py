@@ -87,6 +87,7 @@ class Runner(object):
 
         def check_pass(klass):
             """True if `klass` has a greenlet in `state`."""
+
             return bool(state[klass])
 
         def all_passed(iterable):
