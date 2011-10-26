@@ -1,6 +1,6 @@
+import gevent
 import logging
-from collections import defaultdict
-from topsort import topsort
+from topsort import topsort_levels
 
 log = logging.getLogger('awscompat')
 ch = logging.StreamHandler()
@@ -41,37 +41,24 @@ class Runner(object):
             for key in klass.depends:
                 dependency_pairs.append((klass.depends[key], klass))
 
-        self.run_list = [klass for klass in topsort(dependency_pairs)
-                          if klass]
+        self.run_levels = filter(all, topsort_levels(dependency_pairs))
+
 
     def run(self):
 
-        # copy run_list because we'll mutate it
-        run_list = list(self.run_list)
-        seen = {}
+        state = {}
 
-        def next(classes):
-            if not len(classes):
-                return
-
-            # set up the class at the head of `classes`
-            klass = classes.pop(0)
-            log.debug("Running %s" % klass.__name__)
+        def run_pre(klass):
+            """Initialize the test node and run its pre method.
+            
+            Report any errors."""
             obj = klass()
-            seen[klass] = obj
-            parents = {}
 
-            # build list of initialized parents
-            for key in klass.depends:
-                try:
-                    parents[key] = seen[klass.depends[key]]
-                except KeyError:
-                    raise TestGraphError(
-                        "Dependency %s of class %s "
-                        "hasn't been initialized yet." % (
-                            klass.depends[key].__name__, klass.__name__
-                        )
-                    )
+            # Find already initialized parent objects.
+            parents = {}
+            if hasattr(klass, 'depends'):
+                for key in klass.depends:
+                    parents[key] = state[klass.depends[key]]
 
             try:
                 obj.pre(**parents)
@@ -82,7 +69,12 @@ class Runner(object):
                 log.exception(e)
                 self.pre_error(obj)
             else:
-                next(classes)
+                return obj
+
+        def run_post(obj):
+            """Run the test node's post method.
+            
+            Report any errors."""
 
             try:
                 obj.post()
@@ -93,8 +85,41 @@ class Runner(object):
                 log.exception(e)
                 self.post_error(obj)
 
+        def check_pass(klass):
+            """True if `klass` has a greenlet in `state`."""
+            return bool(state[klass])
 
-        next(run_list)
+        def all_passed(iterable):
+            """True if all members of `iterable` have a greenlet in `state`."""
+
+            return all([check_pass(klass) for klass in iterable])
+
+        for level in self.run_levels:
+            jobs = {}
+            # spawn objects in current run level
+            for klass in level:
+                # only classes whose parents succeeded may be run
+                if all_passed(klass.depends.values()):
+                    log.debug("Running %s" % klass.__name__)
+                    jobs[klass] = gevent.spawn(run_pre, klass)
+            gevent.joinall(jobs.values())
+
+            # collect finished jobs in state.
+            for klass in level:
+                if klass in jobs:
+                    state[klass] = jobs[klass].value
+                else:
+                    # These classes failed for some reason.
+                    state[klass] = None
+
+            # state[klass] should never raise a KeyError
+            assert all([klass in state for klass in level])
+
+        for level in reversed(self.run_levels):
+            # spawn cleanup jobs for classes which ran pre successfully.
+            eligible = [klass for klass in level if check_pass(klass)]
+            jobs = [gevent.spawn(run_post, state[klass]) for klass in eligible]
+            gevent.joinall(jobs)
 
 
     def pre_failure(self, obj):
