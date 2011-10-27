@@ -16,7 +16,6 @@ class TestSecurityGroups(TestNode):
             self.group_desc
         )
 
-
         groups = util.retry(
             lambda: ec2_conn.get_all_security_groups(
                 groupnames=[self.group_name])
