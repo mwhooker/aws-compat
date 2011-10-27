@@ -10,39 +10,45 @@ from itertools import ifilter
 
 base = {
     'ec2': {
-        'test_image_id': '',
+        'url': None,
+        "test_image_id": "ami-8e1fece7",
         'test_instance': {
-            'instance_type': "",
-            'ramdisk_id': '',
-            'kernel_id': ''
+            'instance_type': None,
+            'ramdisk_id': None,
+            'kernel_id': None
         },
-        'test_username': ''
+        'test_username': 'ec2-user'
+    },
+    's3': {
+        'url': None
     }
 }
 
-def parse_novarc(fd):
-    data = {}
-    for line in ifilter(lambda x: x[:6] == 'export', fd):
-        lhs, rhs = line.split('=')
-        key = lhs[7:]
-        value = rhs.strip('"\n')
-        data[key] = value
-    print data
+novarc_keys = [
+    "EC2_ACCESS_KEY",
+    "EC2_SECRET_KEY",
+    "EC2_URL",
+    "S3_URL",
+    "EC2_USER_ID",
+    "EC2_PRIVATE_KEY",
+    "EC2_CERT",
+    "NOVA_CERT",
+    "EUCALYPTUS_CERT",
+    "NOVA_API_KEY",
+    "NOVA_USERNAME",
+    "NOVA_PROJECT_ID",
+    "NOVA_URL",
+    "NOVA_VERSION",
+]
 
-    return {}
 
 parser = argparse.ArgumentParser()
-parser.add_argument('novarc', metavar='NOVARC',
-                    help='novarc file to populate config file with.')
+parser.add_argument('--env', action='store_true',
+                    help='Generate config from environment.')
 args = parser.parse_args()
 
-novarc_path = os.path.join(os.getcwd(), args.novarc)
-try:
-    with open(novarc_path) as f:
-        base.update(parse_novarc(f))
-except IOError:
-    print "Please make sure a config file exists at %s" % novarc_path
-    sys.exit(-1)
 
+if args.env:
+    base.update(load_env())
 
 print json.dumps(base)
