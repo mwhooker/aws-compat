@@ -48,21 +48,34 @@ except IOError:
     sys.exit(-1)
 
 
-parts = split_clc_url(awscompat.config['ec2']['url'])
+def build_connection(config, service):
+    factory = {
+        'ec2': boto.connect_ec2,
+        's3': boto.connect_s3
+    }
 
-def build_connection(config, factory):
-    return factory(
+    parts = split_clc_url(awscompat.config['ec2']['url'])
+
+    kwargs = {
+        'port': parts['port'],
+        'is_secure': parts['is_secure'],
+    }
+
+    if len(parts['path']):
+        kwargs['path'] = parts['path']
+    if service == 'ec2':
+        kwargs['region'] = RegionInfo(None,
+                                      'nova',
+                                      parts['ip'])
+
+    return factory[service](
         aws_access_key_id=config['access_key'],
         aws_secret_access_key=config['secret'],
-        is_secure=parts['is_secure'],
-        region=RegionInfo(None,
-                          'nova',
-                          parts['ip']),
-        port=parts['port'],
-        path=parts['path']
+        **kwargs
     )
-awscompat.connections.ec2_conn = build_connection(awscompat.config, boto.connect_ec2)
-awscompat.connections.s3_conn = build_connection(awscompat.config, boto.connect_s3)
+
+awscompat.connections.ec2_conn = build_connection(awscompat.config, 'ec2')
+awscompat.connections.s3_conn = build_connection(awscompat.config, 's3')
 
 test_dir = os.path.join(os.path.dirname(__file__), 'awscompat', 'tests')
 
