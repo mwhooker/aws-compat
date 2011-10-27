@@ -15,7 +15,7 @@ base = {
         'url': None,
         "test_image_id": "ami-8e1fece7",
         'test_instance': {
-            'instance_type': None,
+            'instance_type': 't1.micro',
             'ramdisk_id': None,
             'kernel_id': None
         },
