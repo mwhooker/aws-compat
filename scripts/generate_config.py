@@ -8,6 +8,20 @@ except ImportError:
     import simplejson as json
 from itertools import ifilter
 
+
+def update_env(env_mapping):
+    for key in env_mapping:
+        base[key] = os.getenv(env_mapping[key])
+
+def update_os():
+    base['ec2']['url'] = os.getenv('EC2_URL')
+    base['s3']['url'] = os.getenv('S3_URL')
+
+    base['ec2']['test_username'] = os.getenv('NOVA_USERNAME')
+
+def update_aws():
+    pass
+
 base = {
     'access_key': None,
     'secret': None,
@@ -37,14 +51,14 @@ env_map = {
     }
 }
 
-def update_env(env_mapping):
-    for key in env_mapping:
-        base[key] = os.getenv(env_mapping[key])
+provider_map = {
+    'os': update_os,
+    'aws': update_aws
+}
 
-    base['ec2']['url'] = os.getenv('EC2_URL')
-    base['s3']['url'] = os.getenv('S3_URL')
 
-if not any([os.environ.has_key(key) for key in env_map['os'].values() + env_map['aws'].values()]):
+if not any([all([os.environ.has_key(key) for key in env])
+            for env in (env_map['os'].values(), env_map['aws'].values())]):
     sys.stderr.write("No access keys from the environment found. ")
     sys.stderr.write("Try sourcing your credentials file.\n")
     sys.exit(-1)
@@ -56,5 +70,7 @@ parser.add_argument('provider', choices=['aws', 'os'],
 args = parser.parse_args()
 
 update_env(env_map[args.provider])
+provider_map[args.provider]()
+
 
 print json.dumps(base)
