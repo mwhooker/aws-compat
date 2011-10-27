@@ -1,9 +1,0 @@
-{
-    "ec2": {
-        "test_image_id": "ami-8e1fece7",
-        "test_instance": {
-            "instance_type": "t1.micro"
-        },
-        "test_username": "ec2-user"
-    }
-}
