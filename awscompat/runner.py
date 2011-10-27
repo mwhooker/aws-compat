@@ -46,6 +46,7 @@ class Runner(object):
 
     def run(self):
 
+        # stores a class:object mapping
         state = {}
 
         def run_pre(klass):
