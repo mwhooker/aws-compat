@@ -83,7 +83,7 @@ class TestInstance(TestNode):
         assert util.retry(
             lambda: self.testSSH(
                 self.key_pairs.keypair.material.encode('ascii'),
-                config['ec2']['test_username']
+                config['ec2']['test_username'],
                 self.reservation.instances[0].public_dns_name
             ),
             wait_exp=2
