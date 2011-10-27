@@ -50,27 +50,19 @@ except IOError:
 
 parts = split_clc_url(awscompat.config['ec2']['url'])
 
-awscompat.connections.ec2_conn = boto.connect_ec2(
-    aws_access_key_id=access_key,
-    aws_secret_access_key=secret_key,
-    is_secure=parts['is_secure'],
-    region=RegionInfo(None,
-                      'nova',
-                      parts['ip']),
-    port=parts['port'],
-    path=parts['path']
-)
-
-awscompat.connections.s3_conn = boto.connect_s3(
-    aws_access_key_id=access_key,
-    aws_secret_access_key=secret_key,
-    is_secure=parts['is_secure'],
-    region=RegionInfo(None,
-                      'nova',
-                      parts['ip']),
-    port=parts['port'],
-    path=parts['path']
-)
+def build_connection(config, factory):
+    return factory(
+        aws_access_key_id=config['access_key'],
+        aws_secret_access_key=config['secret'],
+        is_secure=parts['is_secure'],
+        region=RegionInfo(None,
+                          'nova',
+                          parts['ip']),
+        port=parts['port'],
+        path=parts['path']
+    )
+awscompat.connections.ec2_conn = build_connection(awscompat.config, boto.connect_ec2)
+awscompat.connections.s3_conn = build_connection(awscompat.config, boto.connect_s3)
 
 test_dir = os.path.join(os.path.dirname(__file__), 'awscompat', 'tests')
 
