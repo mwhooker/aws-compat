@@ -63,15 +63,17 @@ class TestInstance(TestNode):
 
     def pre(self, key_pairs=None, security_group=None):
         image_id = config['ec2']['test_image_id']
+        instance_config = config['ec2']['test_instance']
+
         self.image = ec2_conn.get_all_images(image_ids=[image_id])[0]
         self.security_group = security_group
         self.key_pairs = key_pairs
 
         self.security_group.group.authorize('tcp', 22, 22, '0.0.0.0/0')
         self.reservation = self.image.run(
-            instance_type='t1.micro',
             security_groups=[self.security_group.group_name],
-            key_name=self.key_pairs.key_name
+            key_name=self.key_pairs.key_name,
+            **instance_config
         )
 
         util.wait(
