@@ -53,8 +53,9 @@ def build_connection(config, service):
         'ec2': boto.connect_ec2,
         's3': boto.connect_s3
     }
+    assert service in factory
 
-    parts = split_clc_url(awscompat.config['ec2']['url'])
+    parts = split_clc_url(awscompat.config[service]['url'])
 
     kwargs = {
         'port': parts['port'],
