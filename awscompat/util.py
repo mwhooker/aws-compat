@@ -1,4 +1,5 @@
 from uuid import uuid4
+import gevent
 import time
 
 
@@ -12,7 +13,7 @@ def wait(condition, interval=0.1, timeout=30):
     Params:
         condition: callable. Boolean return type
         interval: how long to wait, in seconds, in between calls to condition
-        timout: if set, how long to wait, in seconds, before aborting.
+        timeout: if set, how long to wait, in seconds, before aborting.
     """
 
     assert callable(condition)
@@ -25,7 +26,7 @@ def wait(condition, interval=0.1, timeout=30):
         except Exception, e:
             pass
         if interval:
-            time.sleep(interval)
+            gevent.sleep(interval)
         if time.time() >= start + timeout:
             raise TimeoutException()
 
@@ -46,7 +47,7 @@ def retry(f=None, max_tries=5, wait_exp=None):
         def inner(*args, **kwargs):
             for i in xrange(max_tries):
                 if wait_exp:
-                    time.sleep(i ** wait_exp)
+                    gevent.sleep(i ** wait_exp)
                 try:
                     return f(*args, **kwargs)
                 except Exception:

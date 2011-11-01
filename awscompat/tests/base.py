@@ -28,26 +28,31 @@ class TestNode(object):
     def testSSH(self, key, username, host):
         key_file = StringIO(key)
         rsa_key = paramiko.RSAKey(file_obj=key_file)
+        client = paramiko.SSHClient()
+        client.set_missing_host_key_policy(paramiko.WarningPolicy())
 
-        transport = paramiko.Transport((host, 22))
         try:
-            transport.connect(username=username, pkey=rsa_key)
-            channel = transport.open_session()
-            channel.exec_command('uname')
+            client.connect(host, username=username, pkey=rsa_key,
+                           timeout=5, look_for_keys=False)
+#            client.exec_command('uname')
         except paramiko.SSHException as e:
             # TODO: log e
+            print "sshexception: ", e
             return False
+        return True
 
-        output = channel.makefile('rb', -1).readlines()
-        return bool(len(output))
+        #output = channel.makefile('rb', -1).readlines()
+        #return bool(len(output))
 
-    def testTelnet(self, host, port):
+    def testTelnet(self, host, port, timeout=5):
         client = telnetlib.Telnet()
 
         try:
-            client.open(host, port, timeout=5)
+            client.open(host, port, timeout)
         except timeout:
             return False
+        finally:
+            client.close()
         return True
 
     @staticmethod

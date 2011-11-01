@@ -80,6 +80,14 @@ class TestInstance(TestNode):
             timeout=60 * 3
         )
 
+        util.wait(
+            lambda: self.testTelnet(
+                self.reservation.instances[0].public_dns_name,
+                22
+            ),
+            timeout = 60 * 5
+        )
+
         assert util.retry(
             lambda: self.testSSH(
                 self.key_pairs.keypair.material.encode('ascii'),
@@ -91,7 +99,9 @@ class TestInstance(TestNode):
 
 
     def post(self):
+
         self.reservation.instances[0].terminate()
+        #ec2_conn.terminate_instances([self.reservation.instances[0].id])
         util.wait(
             lambda: self.reservation.instances[0].update() == 'terminated',
             timeout=60 * 2

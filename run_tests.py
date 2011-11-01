@@ -65,6 +65,7 @@ def build_connection(config, service):
     if len(parts['path']):
         kwargs['path'] = parts['path']
     if service == 'ec2':
+        # todo: only do this for OS/nova
         kwargs['region'] = RegionInfo(None,
                                       'nova',
                                       parts['ip'])
