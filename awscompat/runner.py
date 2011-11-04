@@ -119,6 +119,8 @@ class Runner(object):
 
         for level in reversed(self.run_levels):
             # spawn cleanup jobs for classes which ran pre successfully.
+            for klass in level:
+                log.debug("Shutting down %s" % klass.__name__)
             eligible = [klass for klass in level if check_pass(klass)]
             jobs = [gevent.spawn(run_post, state[klass]) for klass in eligible]
             gevent.joinall(jobs)
