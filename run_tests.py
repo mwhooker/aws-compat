@@ -55,20 +55,21 @@ def build_connection(config, service):
     }
     assert service in factory
 
-    parts = split_clc_url(awscompat.config[service]['url'])
+    if config['url']:
+        parts = split_clc_url(awscompat.config[service]['url'])
 
-    kwargs = {
-        'port': parts['port'],
-        'is_secure': parts['is_secure'],
-    }
+        kwargs = {
+            'port': parts['port'],
+            'is_secure': parts['is_secure'],
+        }
 
-    if len(parts['path']):
-        kwargs['path'] = parts['path']
-    if service == 'ec2':
-        # todo: only do this for OS/nova
-        kwargs['region'] = RegionInfo(None,
-                                      'nova',
-                                      parts['ip'])
+        if len(parts['path']):
+            kwargs['path'] = parts['path']
+
+        if config['region_name']:
+            kwargs['region'] = RegionInfo(None,
+                                          config['region']['name'],
+                                          parts['ip'])
 
     return factory[service](
         aws_access_key_id=config['access_key'],

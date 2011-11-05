@@ -15,6 +15,7 @@ def update_env(env_mapping):
 
 def update_os():
     base['ec2']['url'] = os.getenv('EC2_URL')
+    base['ec2']['region_name'] = 'nova'
     base['s3']['url'] = os.getenv('S3_URL')
 
     base['ec2']['test_username'] = os.getenv('NOVA_USERNAME')
@@ -28,6 +29,7 @@ base = {
     'access_key': None,
     'secret': None,
     'ec2': {
+        'region_name': None,
         'url': None,
         "test_image_id": None,
         'test_instance': {
