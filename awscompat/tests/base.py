@@ -17,7 +17,7 @@ class TestNode(object):
         raise NotImplementedError
 
     def post(self):
-        raise NotImplementedError
+        pass
 
     def make_uuid(self, prefix=None):
         return "awscompat_%s%s" % (

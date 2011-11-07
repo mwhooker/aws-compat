@@ -11,8 +11,6 @@ class TestDescribeImages(TestNode):
             [config['ec2']['test_image_id']]
         )[0].name
 
-    def post(self):
-        pass
 
 class TestSecurityGroups(TestNode):
     """Test security group generation."""
@@ -43,6 +41,7 @@ class TestSecurityGroups(TestNode):
         @self.assert_raises(boto.exception.EC2ResponseError)
         def test_throw():
             ec2_conn.get_all_security_groups(groupnames=[self.group_name])
+
 
 class TestKeyPairs(TestNode):
     """Test keypair generation."""
