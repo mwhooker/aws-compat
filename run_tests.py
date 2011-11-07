@@ -63,9 +63,9 @@ def build_connection(config, connect):
         if len(parts['path']):
             kwargs['path'] = parts['path']
 
-        if config['region_name']:
+        if config.get('region_name'):
             kwargs['region'] = RegionInfo(None,
-                                          config['region']['name'],
+                                          config['region_name'],
                                           parts['ip'])
 
     return connect(**kwargs)
