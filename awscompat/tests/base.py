@@ -34,15 +34,11 @@ class TestNode(object):
         try:
             client.connect(host, username=username, pkey=rsa_key,
                            timeout=5, look_for_keys=False)
-#            client.exec_command('uname')
         except paramiko.SSHException as e:
             # TODO: log e
-            print "sshexception: ", e
             return False
         return True
 
-        #output = channel.makefile('rb', -1).readlines()
-        #return bool(len(output))
 
     def testTelnet(self, host, port, timeout=5):
         client = telnetlib.Telnet()

@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 import argparse
 import boto
-import os.path
+import functools
 import json
+import os.path
 import sys
 from urlparse import urlparse
 
@@ -48,15 +49,11 @@ except IOError:
     sys.exit(-1)
 
 
-def build_connection(config, service):
-    factory = {
-        'ec2': boto.connect_ec2,
-        's3': boto.connect_s3
-    }
-    assert service in factory
+def build_connection(config, connect):
+    kwargs = {}
 
     if config['url']:
-        parts = split_clc_url(awscompat.config[service]['url'])
+        parts = split_clc_url(config['url'])
 
         kwargs = {
             'port': parts['port'],
@@ -71,14 +68,22 @@ def build_connection(config, service):
                                           config['region']['name'],
                                           parts['ip'])
 
-    return factory[service](
-        aws_access_key_id=config['access_key'],
-        aws_secret_access_key=config['secret'],
-        **kwargs
-    )
+    return connect(**kwargs)
 
-awscompat.connections.ec2_conn = build_connection(awscompat.config, 'ec2')
-awscompat.connections.s3_conn = build_connection(awscompat.config, 's3')
+connect_ec2 = functools.partial(
+    boto.connect_ec2,
+    aws_access_key_id=awscompat.config['access_key'],
+    aws_secret_access_key=awscompat.config['secret']
+)
+
+connect_s3 = functools.partial(
+    boto.connect_s3,
+    aws_access_key_id=awscompat.config['access_key'],
+    aws_secret_access_key=awscompat.config['secret']
+)
+
+awscompat.connections.ec2_conn = build_connection(awscompat.config['ec2'], connect_ec2)
+awscompat.connections.s3_conn = build_connection(awscompat.config['s3'], connect_s3)
 
 test_dir = os.path.join(os.path.dirname(__file__), 'awscompat', 'tests')
 
