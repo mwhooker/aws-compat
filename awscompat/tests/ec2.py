@@ -3,6 +3,16 @@ from awscompat import config, util
 from awscompat.connections import ec2_conn
 from awscompat.tests.base import TestNode
 
+class TestDescribeImages(TestNode):
+    """Failing test for https://bugs.launchpad.net/nova/+bug/755829"""
+
+    def pre(self):
+        assert ec2_conn.get_all_images(
+            [config['ec2']['test_image_id']]
+        )[0].name
+
+    def post(self):
+        pass
 
 class TestSecurityGroups(TestNode):
     """Test security group generation."""
