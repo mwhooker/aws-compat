@@ -1,3 +1,5 @@
+# awscompat
+
 ## Goals
 
    * Automated test to compare API compatibility between a given build of OpenStack and AWS
@@ -14,3 +16,16 @@
    * A test runner which executes a "test strategy" against a live openstack install and summarizes which strategies passed and which failed.
    * The "test strategy" will be written in python to the awscompat API
    * The test runner will mutate the target system's state while running, but will do its best to leave the system in its original state.
+
+## Running
+
+Awscompat uses a json config file to fill in details that differ from one cloud to another. Awscompat ships with a script which reads values from your environment to help generate the config.
+
+To generate an openstack config, first source your novarc file, and then run:
+
+    $ ./scripts/generate_config.py os > os_config.json
+
+You should then edit the file to plug in the appropriate values for kernel, and ramdisk ID. Also verify that the other values are correct.
+Once you have your config file, run:
+
+    $ ./run_tests.py -c os_config.js
