@@ -30,25 +30,6 @@ def split_clc_url(clc_url):
         'path': parts.path
     }
 
-
-parser = argparse.ArgumentParser()
-parser.add_argument('-m', metavar='MODULE', nargs='+',
-                    help='Only run these test modules.')
-parser.add_argument('-c', default='config.json', metavar='CONFIG_FILE',
-                    help='Use alternate config file. Relative path. '
-                   'Defaults to config.json')
-args = parser.parse_args()
-
-
-config_path = os.path.join(os.path.dirname(__file__), args.c)
-try:
-    with open(config_path) as f:
-        awscompat.config = json.load(f)
-except IOError:
-    print "Please make sure a config file exists at %s" % config_path
-    sys.exit(-1)
-
-
 def build_connection(config, connect):
     kwargs = {}
 
@@ -70,6 +51,26 @@ def build_connection(config, connect):
 
     return connect(**kwargs)
 
+
+test_dir = os.path.join(os.path.dirname(__file__), 'awscompat', 'tests')
+
+parser = argparse.ArgumentParser()
+parser.add_argument('modules', metavar='MODULES', nargs='+',
+                    choices=collector.list_modules(test_dir),
+                    help='Only run these test modules.')
+parser.add_argument('-c', default='config.json', metavar='CONFIG_FILE',
+                    help='Use alternate config file. Relative path. '
+                   'Defaults to config.json')
+args = parser.parse_args()
+
+config_path = os.path.join(os.path.dirname(__file__), args.c)
+try:
+    with open(config_path) as f:
+        awscompat.config = json.load(f)
+except IOError:
+    print "Please make sure a config file exists at %s" % config_path
+    sys.exit(-1)
+
 connect_ec2 = functools.partial(
     boto.connect_ec2,
     aws_access_key_id=awscompat.config['access_key'],
@@ -82,12 +83,12 @@ connect_s3 = functools.partial(
     aws_secret_access_key=awscompat.config['secret']
 )
 
-awscompat.connections.ec2_conn = build_connection(awscompat.config['ec2'], connect_ec2)
-awscompat.connections.s3_conn = build_connection(awscompat.config['s3'], connect_s3)
+awscompat.connections.ec2_conn = build_connection(
+    awscompat.config['ec2'], connect_ec2)
+awscompat.connections.s3_conn = build_connection(
+    awscompat.config['s3'], connect_s3)
 
-test_dir = os.path.join(os.path.dirname(__file__), 'awscompat', 'tests')
-
-classes = collector.collect(test_dir, include_modules=args.m)
+classes = collector.collect(test_dir, include_modules=args.modules)
 runner = runner.Runner(classes)
 runner.run()
 runner.flush_messages()

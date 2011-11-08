@@ -6,7 +6,6 @@ try:
     import json
 except ImportError:
     import simplejson as json
-from itertools import ifilter
 
 
 def update_env(env_mapping):
