@@ -124,29 +124,3 @@ class TestInstance(TestNode):
             ),
             wait_exp=2
         )
-
-
-"""
-class TestImageCreation(TestNode):
-
-    depends = TestSecurityGroups
-
-    def setUp(self):
-        self.image_path = self.make_uuid('image_path')
-        self.image_bucket = self.make_uuid('image_bucket')
-
-    def pre(self):
-        bucket = s3_conn.get_bucket(self.image_buckewt)
-        k = Key(bucket)
-        k.key = self.image_path
-        k.set_contents_from_filename(path_to_image)
-
-    def pre_condition(self):
-        pass
-
-    def post(self):
-        pass
-
-    def post_condition(self):
-        pass
-"""
