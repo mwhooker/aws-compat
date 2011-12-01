@@ -91,4 +91,4 @@ awscompat.connections.s3_conn = build_connection(
 classes = collector.collect(test_dir, include_modules=args.modules)
 runner = runner.Runner(classes)
 runner.run()
-runner.flush_messages()
+sys.exit(runner.flush_messages())
