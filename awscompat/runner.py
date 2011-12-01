@@ -139,7 +139,10 @@ class Runner(object):
         self.errors.append((obj, 'post'))
 
     def flush_messages(self):
-        """log errors & failures. flush messages. Return number of failures"""
+        """log errors & failures. flush messages.
+
+        If there were errors, return -1.
+        If there are failures, return their number."""
 
         if not len(self.failures) and not len(self.errors):
             log.info('OK')
@@ -150,6 +153,7 @@ class Runner(object):
                 print err
             log.error("errors: %d" % len(self.errors))
             self.errors = []
+            return -1
 
         if len(self.failures):
             log.info("failures: %d" % len(self.failures))
