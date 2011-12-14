@@ -25,7 +25,7 @@ To generate an openstack config, first source your novarc file, and then run:
 
     $ ./scripts/generate_config.py os > os_config.json
 
-You should then edit the file to plug in the appropriate values for kernel, and ramdisk ID. Also verify that the other values are correct.
+where 'os' stands for OpenStack.  You should then edit the file to plug in the appropriate values for kernel, and ramdisk ID. Also verify that the other values are correct.
 Once you have your config file, run:
 
-    $ ./run_tests.py -c os_config.js
+    $ ./run_tests.py -c os_config.json
