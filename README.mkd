@@ -29,3 +29,23 @@ where 'os' stands for OpenStack.  You should then edit the file to plug in the a
 Once you have your config file, run:
 
     $ ./run_tests.py -c os_config.json
+
+
+## Running with virtualenv
+aws-compat can be run using a isolated environment using virtualenv.
+
+   * Install virtualenv
+
+        $ easy_install virtualenv
+
+   * Create virtualenv
+
+        $ virtualenv venv
+
+   * Activate virtualenv
+
+        $ source ./venv/bin/activate
+
+   * Install dependencies
+
+        $ pip install -r pip-requires.txt 
